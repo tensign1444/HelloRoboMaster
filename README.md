@@ -16,9 +16,26 @@ Download the files to a directory on your computer. The quickest way to do this 
 
 To see the specific compile steps, view the Makefile using a command like `cat Makefile`. The most basic compiling command would something like this:
 ```
-git clone https://github.com/prof-tallman/HelloRoboMaster
-cd HelloRoboMaster
-pip install djitellopy
+% git clone https://github.com/prof-tallman/HelloRoboMaster
+Cloning into 'HelloRoboMaster'...
+remote: Enumerating objects: 16, done.
+remote: Counting objects: 100% (16/16), done.
+remote: Compressing objects: 100% (14/14), done.
+remote: Total 16 (delta 5), reused 10 (delta 2), pack-reused 0
+Receiving objects: 100% (16/16), 7.26 KiB | 1.82 MiB/s, done.
+Resolving deltas: 100% (5/5), done.
+
+% cd HelloRoboMaster
+
+% pip install djitellopy
+Collecting djitellopy
+  Using cached djitellopy-2.4.0-py3-none-any.whl (14 kB)
+Requirement already satisfied: numpy in c:\users\joshua\appdata\local\packages\pythonsoftwarefoundation.python.3.10_qbz5n2kfra8p0\localcache\local-packages\python310\site-packages (from djitellopy) (1.23.5)
+Requirement already satisfied: opencv-python in c:\users\joshua\appdata\local\packages\pythonsoftwarefoundation.python.3.10_qbz5n2kfra8p0\localcache\local-packages\python310\site-packages (from djitellopy) (4.7.0.68)
+Installing collected packages: djitellopy
+Successfully installed djitellopy-2.4.0
+
+%
 ```
 
 Once you have downloaded the files and installed the dependencies (`djitellopy`), grab the drone.
@@ -31,14 +48,21 @@ The drone should have created a WiFi access point. You'll need to join this WiFi
 You'll need to open two UDP ports on your computer. The first port is probably easiest because it is an outgoing connection from your computer to the drone. But the second port need to be opened manually because it is an incoming connections from the drone.
 * UDP port 8889
 * UDP port 8890
+
 Note: there is a third port for the drone's camera, but we don't use it here.
 
 ## Usage
-Run the program through the Python3 interpreter. From the command line, it would be:
+Run the program through the Python3 interpreter. You should see the LEDs on your RoboMaster Drone light up and change colors. The program takes 5-10 seconds to run.
 ```
-python3 mission_01.py
+% python3 mission_01.py
+[INFO] tello.py - 122 - Tello instance was initialized. Host: '192.168.10.1'. Port: '8889'.
+Battery: 89%
+Temp °F: 47.5
+Drone connection closed gracefully
+Mission completed
+
+%
 ```
-You should see the LEDs on your RoboMaster Drone light up and change colors. The program takes 5-10 seconds to run.
 
 ## Maintainers
 [@JoshuaTallman](https://github.com/prof-tallman)
