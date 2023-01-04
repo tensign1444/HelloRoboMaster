@@ -68,6 +68,9 @@ Mission completed
 %
 ```
 
+Your drone should look something along these lines (although I believe this photograph is from an old logo).
+![RoboMaster showing a key logo on the LED matrix](logo.jpg)
+
 ## Maintainers
 [@JoshuaTallman](https://github.com/prof-tallman)
 
