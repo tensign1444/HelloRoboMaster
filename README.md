@@ -53,7 +53,7 @@ You'll need to open two UDP ports on your computer. The first port is probably e
 * UDP port 8889
 * UDP port 8890
 
-Note: there is a third port for the drone's camera, but we don't use it here.
+If you would like to know more about the DJI RoboMaster, here is the [User's Manual Local PDF](RoboMaster_TT_Tello_Talent_User_Manual_en.pdf) with lots more information. If you would prefer a web link, here it is on the [DJI website](https://dl.djicdn.com/downloads/RoboMaster+TT/RoboMaster_TT_Tello_Talent_User_Manual_en.pdf).
 
 ## Usage
 Run the program through the Python3 interpreter. You should see the LEDs on your RoboMaster Drone light up and change colors. The program takes 5-10 seconds to run.
