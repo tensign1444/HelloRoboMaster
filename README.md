@@ -30,8 +30,12 @@ Resolving deltas: 100% (5/5), done.
 % pip install djitellopy
 Collecting djitellopy
   Using cached djitellopy-2.4.0-py3-none-any.whl (14 kB)
-Requirement already satisfied: numpy in c:\users\joshua\appdata\local\packages\pythonsoftwarefoundation.python.3.10_qbz5n2kfra8p0\localcache\local-packages\python310\site-packages (from djitellopy) (1.23.5)
-Requirement already satisfied: opencv-python in c:\users\joshua\appdata\local\packages\pythonsoftwarefoundation.python.3.10_qbz5n2kfra8p0\localcache\local-packages\python310\site-packages (from djitellopy) (4.7.0.68)
+Requirement already satisfied: numpy in c:\users\joshua\appdata\local\pack
+ages\pythonsoftwarefoundation.python.3.10_qbz5n2kfra8p0\localcache\local-p
+ackages\python310\site-packages (from djitellopy) (1.23.5)
+Requirement already satisfied: opencv-python in c:\users\joshua\appdata\lo
+cal\packages\pythonsoftwarefoundation.python.3.10_qbz5n2kfra8p0\localcache
+\local-packages\python310\site-packages (from djitellopy) (4.7.0.68)
 Installing collected packages: djitellopy
 Successfully installed djitellopy-2.4.0
 
