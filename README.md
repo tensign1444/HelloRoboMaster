@@ -38,6 +38,7 @@ Run the program through the Python3 interpreter. From the command line, it would
 ```
 python3 mission_01.py
 ```
+You should see the LEDs on your RoboMaster Drone light up and change colors. The program takes 5-10 seconds to run.
 
 ## Maintainers
 [@JoshuaTallman](https://github.com/prof-tallman)
