@@ -49,7 +49,7 @@ Once you have downloaded the files and installed the dependencies (`djitellopy`)
 
 The drone should have created a WiFi access point. You'll need to join this WiFi network from your computer. By default, the AP will be named RMTT-XXXXXX since you have the Expansion Kit attached. If the Expansion Kit were missing, the AP would have been named TELLO-XXXXXX.
 
-You'll need to open two UDP ports on your computer. The first port is probably easiest because it is an outgoing connection from your computer to the drone. But the second port need to be opened manually because it is an incoming connections from the drone.
+You'll need to open two UDP ports on your computer. The first port is probably easiest because it is an outgoing connection from your computer to the drone. Your operating system may prompt you to open the port. But the second port needs to be opened manually because it is an incoming connections from the drone to your computer.
 * UDP port 8889
 * UDP port 8890
 
