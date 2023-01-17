@@ -3,6 +3,7 @@
 # Standard python modules
 import time
 import logging
+import json
 
 # Custom modules for the drones
 from djitellopy import Tello
@@ -34,10 +35,17 @@ huf_logo3 = "*0*00000" +\
             "00000000" +\
             "00000000"
 
-#-------------------------------------------------------------------------------
-# Mission Programs
-#-------------------------------------------------------------------------------
-
+#----------------------------------currentHeight
+def read_json():
+    """
+    Reads data from the mission01 json file
+    returns it as a dictionary
+    """
+    # Opening JSON file
+    with open('mission_obj.json') as json_file:
+        data = json.load(json_file)
+    return data
+    
 def mission_01():
     """
     Requirements for Mission 01:
@@ -46,11 +54,34 @@ def mission_01():
     There are a few extra features I've included for fun.
     """
 
+    mission_obj = {'ceiling':150, 'floor':50}
+    #mission_obj = {'ceiling':150, 'floor':100}
+    #mission_obj = {'ceiling':200, 'floor':100}
+
     # Connect to the DJI RoboMaster drone using a HeadsUpTello object
     # Try passing logging.INFO and see how your output changes
     my_robomaster = Tello()
-    drone = HeadsUpTello(my_robomaster, logging.WARNING)
+    drone = HeadsUpTello(my_robomaster, mission_obj, logging.WARNING)
 
+   
+    # Finish the mission
+    print(f"Battery: {drone.get_battery()}%")
+    print(f"Temp °F: {drone.get_temperature()}")
+    drone.takeoff()
+    time.sleep(1)
+    drone.fly_to_mission_floor()
+    time.sleep(10)
+    drone.fly_to_mission_ceiling()
+    time.sleep(10)
+    drone.land()
+    time.sleep(1)
+    drone.disconnect()
+    return
+
+"""
+method to turn on the drone leds
+"""
+def led(drone):
     # Turn the top LED bright green and show our logo on the matrix display
     drone.matrix_pattern(huf_logo2, 'b')
     r = 0
@@ -72,14 +103,6 @@ def mission_01():
     time.sleep(2)
     drone.matrix_off()
     drone.top_led_off()
-
-    # Finish the mission
-    print(f"Battery: {drone.get_battery()}%")
-    print(f"Temp °F: {drone.get_temperature()}")
-
-    drone.disconnect()
-    return
-
 
 #-------------------------------------------------------------------------------
 # Python Entry Point
