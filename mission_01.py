@@ -54,30 +54,43 @@ def mission_01():
     There are a few extra features I've included for fun.
     """
 
-    mission_obj = {'ceiling':150, 'floor':50}
+    mission_obj = {'ceiling':160, 'floor':50}
     #mission_obj = {'ceiling':150, 'floor':100}
     #mission_obj = {'ceiling':200, 'floor':100}
 
     # Connect to the DJI RoboMaster drone using a HeadsUpTello object
-    # Try passing logging.INFO and see how your output changes
+    # Try passing logging.INFO and see how your output changesy
     my_robomaster = Tello()
     drone = HeadsUpTello(my_robomaster, mission_obj, logging.WARNING)
-
-   
-    # Finish the mission
     print(f"Battery: {drone.get_battery()}%")
     print(f"Temp °F: {drone.get_temperature()}")
     drone.takeoff()
-    time.sleep(1)
-    drone.fly_to_mission_floor()
-    time.sleep(10)
-    drone.fly_to_mission_ceiling()
-    time.sleep(10)
-    drone.land()
-    time.sleep(1)
+    drone.fly_up(60)
+    drone.fly_up(60)
+    drone.fly_up(60)
+
     drone.disconnect()
     return
 
+
+def inputStuff():
+    takeOff = input("Would you like to take off? Y/N\n")
+    if (takeOff.lower() == "Y".lower()):
+        drone.takeoff()
+        while (True):
+            userInput = input("Please enter command:\n")
+            if (userInput.lower() == 'Up'.lower()):
+                moveAmount = int(input("Please enter move amount:\n"))
+                drone.fly_up(moveAmount)
+            elif (userInput.lower() == 'Down'.lower()):
+                moveAmount = int(input("Please enter move amount:\n"))
+                drone.fly_down(moveAmount)
+            elif (userInput.lower() == 'Land'.lower()):
+                drone.land()
+                break;
+            else:
+                print(f"Unknown command: {userInput}")
+                print('Commands: land, Up, Down')
 """
 method to turn on the drone leds
 """

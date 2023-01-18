@@ -12,7 +12,7 @@ class HeadsUpTello():
     Drone. Inherits from the djitellopy.Tello class.
     """
 
-    def __init__(self, drone_baseobject, mission_obj = None, debug_level=logging.INFO):
+    def __init__(self, drone_baseobject, mission_obj = None,  debug_level=logging.INFO):
         """
         Constuctor that establishes a connection with the drone. Pass in a new
         djitellopy Tello object give your HeadsUpTello object its wings.
@@ -31,8 +31,9 @@ class HeadsUpTello():
         # to choose one or the other.
         self.drone = drone_baseobject
         self.drone.LOGGER.setLevel(debug_level)
-        self.inAir = False;
+        self.inAir = False
         self.mission_obj = mission_obj
+        self.useBar = False
 
         try:
             self.drone.connect()
@@ -52,6 +53,7 @@ class HeadsUpTello():
         """ Destructor that gracefully closes the connection to the drone. """
         if self.connected:
             self.disconnect()
+        exit(0)
         return
 
     def disconnect(self):
@@ -142,14 +144,11 @@ class HeadsUpTello():
         self.drone.send_control_command(f"{direction} {cm}")
         time.sleep(hold)
 
-    def fly_to_mission_floor(self):
+    def fly_to_mission_floor(self, floorHeight, currentHeight):
         """Moves drone to the mission floor"""
         print("Going to floor...")
-        floorHeight = self.mission_obj["floor"]
         if(self.inAir):     
             print(f"floor height: {floorHeight}")
-           
-            currentHeight = self.drone.get_height()
             print(f"current height: {currentHeight}")
             if(currentHeight > floorHeight):
                 moveAmount = currentHeight - floorHeight
@@ -161,24 +160,65 @@ class HeadsUpTello():
                 self.drone.move_up(int(moveAmount))
         print("At floor...")
 
-    def fly_to_mission_ceiling(self):
+    def fly_to_mission_ceiling(self, ceilingHeight, currentHeight):
         """Moves drone to the mission ceiling"""
         print("Going to ceiling...")
-        ceilingHeight = self.mission_obj["ceiling"]
         if(self.inAir):
-            
-            print(f"ceiling height: {ceilingHeight}")          
-            currentHeight = self.drone.get_height()
+            print(f"ceiling height: {ceilingHeight}")
             print(f"current height: {currentHeight}")
-            
-            if(currentHeight > ceilingHeight):
-                moveAmount = currentHeight - ceilingHeight
-                print(f"moving: {moveAmount}")
-                self.drone.move_down(int(moveAmount))
-            elif(currentHeight < ceilingHeight):
+            if(currentHeight < ceilingHeight):
                 moveAmount = ceilingHeight - currentHeight
                 print(f"moving: {moveAmount}")
-                self.drone.move_up(int(moveAmount))
+
         print("At ceiling...")
+
+    def fly_up(self,moveAmount = 0):
+        """
+        Moves drone up by the user specified amount.
+        """
+        ceilingHeight = self.mission_obj["ceiling"]
+        currentHeight = self.drone.get_height()
+        print(f"trying to move up {moveAmount}")
+        print(f"ceiling height: {ceilingHeight}")
+        print(f"current height: {currentHeight}")
+        if(currentHeight > ceilingHeight):
+            print(f"I am higher than the ceiling {ceilingHeight}, Going down...")
+            moveAmount = currentHeight - ceilingHeight
+            self.drone.move_down(int(moveAmount))
+        elif(currentHeight == ceilingHeight):
+            return
+        elif(currentHeight + moveAmount > ceilingHeight):
+            print(f"Moving {moveAmount} will put me higher than ceiling height...")
+            moveAmount = currentHeight - moveAmount
+            self.drone.move_up(int(moveAmount))
+        else:
+            print(f"moving: {moveAmount}")
+            self.drone.move_up(int(moveAmount))
+        print(f"New currentheight: {self.drone.get_height()}")
+
+    def fly_down(self,moveAmount):
+        floorHeight = self.mission_obj["floor"]
+        currentHeight = self.drone.get_height()
+        print(f"trying to move down {moveAmount}")
+        print(f"floor height: {floorHeight}")
+        print(f"current height: {currentHeight}")
+        if(currentHeight < floorHeight):
+            print(f"I am lower than the floor {floorHeight}, Going up...")
+            moveAmount = floorHeight - currentHeight
+            self.drone.move_up(int(moveAmount))
+        elif(currentHeight == floorHeight):
+            return
+        elif(currentHeight - moveAmount < floorHeight):
+            print(f"Moving {moveAmount} will put me lower than floor height...")
+            moveAmount = currentHeight - floorHeight
+            self.drone.move_down(int(moveAmount))
+        else:
+            print(f"moving: {moveAmount}")
+            self.drone.move_down(int(moveAmount))
+        print(f"New currentheight: {self.drone.get_height()}")
+
+    def get_Height(self):
+        if(self.useBar):
+            return self.barHeight
 
 # ------------------------- END OF HeadsUpTello CLASS ---------------------------
