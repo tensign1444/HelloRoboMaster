@@ -12,7 +12,7 @@ class HeadsUpTello():
     Drone. Inherits from the djitellopy.Tello class.
     """
 
-    def __init__(self, drone_baseobject, mission_obj = None, useBar = False,  debug_level=logging.INFO):
+    def __init__(self, mission_name, drone_baseobject, mission_obj = None,  debug_level=logging.INFO):
         """
         Constuctor that establishes a connection with the drone. Pass in a new
         djitellopy Tello object give your HeadsUpTello object its wings.
@@ -29,26 +29,49 @@ class HeadsUpTello():
         # instead of inheritance (is-a) so that we can choose between the real
         # drone and a simulator. If we had used inheritance, we would be forced
         # to choose one or the other.
+        #-----------Logger_______________________
+        #thanks to https://docs.python.org/3/howto/logging.html for the logging source code.
+
+        self.logger = logging.getLogger(f'{mission_name}')
+
+        self.logger.setLevel(debug_level)
+
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.DEBUG)
+
+        # create formatter
+        formatter = logging.basicConfig(filename=f'{mission_name}.log', encoding='utf-8', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=debug_level)
+        # add formatter to ch
+        ch.setFormatter(formatter)
+
+        # add ch to logger
+        self.logger.addHandler(ch)
+
+
+        #___________Drone Objects_______________
         self.drone = drone_baseobject
         self.drone.LOGGER.setLevel(debug_level)
+        self.logger.info("_________Log Beginning___________")
         self.inAir = False
         self.mission_obj = mission_obj
-        self.useBar = useBar
+        self.useBar = True
 
         try:
             self.drone.connect()
+            self.logger.info("****Connected to ")
             self.connected = True
             self.barHeight = self.get_barometer()
         except Exception as excp:
-            print(f"ERROR: could not connect to Trello Drone: {excp}")
-            print(f" => Did you pass in a valid drone base object?")
-            print(f" => Verify that your firewall allows UDP ports 8889 and 8890")
-            print(f"    The Chromebook's firewall reverts to default settings every")
-            print(f"    time that you restart the virtual Linux environment.")
-            print(f" => You may need to connect to the drone with the Trello App.")
+            self.logger.error(f"ERROR: could not connect to Trello Drone: {excp}")
+            self.logger.critical(f" => Did you pass in a valid drone base object?")
+            self.logger.critical(f" => Verify that your firewall allows UDP ports 8889 and 8890")
+            self.logger.critical(f"    The Chromebook's firewall reverts to default settings every")
+            self.logger.critical(f"    time that you restart the virtual Linux environment.")
+            self.logger.critical(f" => You may need to connect to the drone with the Trello App.")
             self.disconnect()
             raise
         return
+
 
     def __del__(self):
         """ Destructor that gracefully closes the connection to the drone. """
@@ -128,50 +151,22 @@ class HeadsUpTello():
 
     def takeoff(self):
         """Lifts the drone off the ground by sending the takeoff command. Timeout was added to not error."""
-        print("Drone is taking off.")
-        print(f"current height: {self.get_Height()}")
+        self.logger.info("Drone is taking off.")
+        self.logger.info(f"current height: {self.get_Height()}")
         self.drone.takeoff()
         self.inAir = True
 
     def land(self):
         """Lands the drone by sending the drone the land command"""
-        print("Drone is landing.")
+        self.logger.info("Drone is landing.")
         self.drone.land()
         self.inAir = False
 
-    def move(self, direction, cm, hold=10):
+    def move(self, direction, cm):
         """Moves the drone"""
-        print(f"Moving drone {direction} {cm} cm")
+        self.logger.debug(f"Moving drone {direction} {cm} cm")
         self.drone.send_control_command(f"{direction} {cm}")
-        time.sleep(hold)
 
-    def fly_to_mission_floor(self, floorHeight, currentHeight):
-        """Moves drone to the mission floor"""
-        print("Going to floor...")
-        if(self.inAir):     
-            print(f"floor height: {floorHeight}")
-            print(f"current height: {currentHeight}")
-            if(currentHeight > floorHeight):
-                moveAmount = currentHeight - floorHeight
-                print(f"moving: {moveAmount}")
-                self.drone.move_down(int(moveAmount))
-            elif(currentHeight < floorHeight):
-                moveAmount = floorHeight - currentHeight
-                print(f"moving: {moveAmount}")
-                self.drone.move_up(int(moveAmount))
-        print("At floor...")
-
-    def fly_to_mission_ceiling(self, ceilingHeight, currentHeight):
-        """Moves drone to the mission ceiling"""
-        print("Going to ceiling...")
-        if(self.inAir):
-            print(f"ceiling height: {ceilingHeight}")
-            print(f"current height: {currentHeight}")
-            if(currentHeight < ceilingHeight):
-                moveAmount = ceilingHeight - currentHeight
-                print(f"moving: {moveAmount}")
-
-        print("At ceiling...")
 
     def fly_up(self,moveAmount = 0):
         """
@@ -179,44 +174,80 @@ class HeadsUpTello():
         """
         ceilingHeight = self.mission_obj["ceiling"]
         currentHeight = self.get_Height()
-        print(f"trying to move up {moveAmount}")
-        print(f"ceiling height: {ceilingHeight}")
-        print(f"current height: {currentHeight}")
+        self.logger.info(f"trying to move up {moveAmount}")
+        self.logger.debug(f"ceiling height: {ceilingHeight}")
+        self.logger.debug(f"current height: {currentHeight}")
         if(currentHeight > ceilingHeight):
-            print(f"I am higher than the ceiling {ceilingHeight}, Going down...")
+            self.logger.warning(f"I am higher than the ceiling {ceilingHeight}, Going down...")
             moveAmount = currentHeight - ceilingHeight
-            self.drone.move_down(int(moveAmount))
+            self.move_down(int(moveAmount))
         elif(currentHeight == ceilingHeight):
             return
         elif(currentHeight + moveAmount > ceilingHeight):
-            print(f"Moving {moveAmount} will put me higher than ceiling height...")
+            self.logger.warning(f"Moving {moveAmount} will put me higher than ceiling height...")
             moveAmount = ceilingHeight - currentHeight
-            self.drone.move_up(int(moveAmount))
+            self.logger.info(f"New move amount is {moveAmount}")
+            self.move_up(int(moveAmount))
         else:
-            print(f"moving: {moveAmount}")
-            self.drone.move_up(int(moveAmount))
-        print(f"New currentheight: {self.get_Height()}")
+            self.logger.debug(f"moving: {moveAmount}")
+            self.move_up(int(moveAmount))
+        self.logger.debug(f"New currentheight: {self.get_Height()}")
 
     def fly_down(self,moveAmount):
         floorHeight = self.mission_obj["floor"]
         currentHeight = self.get_Height()
-        print(f"trying to move down {moveAmount}")
-        print(f"floor height: {floorHeight}")
-        print(f"current height: {currentHeight}")
+        self.logger.info(f"trying to move down {moveAmount}")
+        self.logger.debug(f"floor height: {floorHeight}")
+        self.logger.debug(f"current height: {currentHeight}")
         if(currentHeight < floorHeight):
-            print(f"I am lower than the floor {floorHeight}, Going up...")
+            self.logger.warning(f"I am lower than the floor {floorHeight}, Going up...")
             moveAmount = floorHeight - currentHeight
-            self.drone.move_up(int(moveAmount))
+            self.move_up(int(moveAmount))
         elif(currentHeight == floorHeight):
             return
         elif(currentHeight - moveAmount < floorHeight):
-            print(f"Moving {moveAmount} will put me lower than floor height...")
+            self.logger.warning(f"Moving {moveAmount} will put me lower than floor height...")
             moveAmount = currentHeight - floorHeight
-            self.drone.move_down(int(moveAmount))
+            self.logger.info(f"New move amount is {moveAmount}")
+            self.move_down(int(moveAmount))
         else:
-            print(f"moving: {moveAmount}")
-            self.drone.move_down(int(moveAmount))
-        print(f"New currentheight: {self.get_Height()}")
+            self.logger.debug(f"moving: {moveAmount}")
+            self.move_down(int(moveAmount))
+        self.logger.debug(f"New currentheight: {self.get_Height()}")
+
+    def move_up(self, amount):
+        """
+        Custom move up function to tell if the move up amount is less than possible.
+        """
+        if amount < 20:
+            self.logger.warning("Going to move down 30 then up 30 since move amount was {amount}")
+            self.drone.move_down(amount + 20)
+            self.drone.move_up(amount + 20)
+        else:
+            self.drone.move_up(amount)
+
+    def move_down(self, amount):
+        """
+        Custom move down function to tell if the move amount is less than possible
+        """
+        if amount < 20:
+            self.logger.warning(f"Going to move up 30 then down 30 since move amount was {amount}")
+            self.drone.move_up(amount + 20)
+            self.drone.move_down(amount + 20)
+        else:
+            self.drone.move_down(amount)
+
+    def move_right(self,amount):
+        self.move('right', amount)
+
+    def move_left(self,amount):
+        self.move('left', amount)
+
+    def move_forward(self,amount):
+        self.move('forward', amount)
+
+    def move_back(self,amount):
+        self.move('back', amount)
 
     def get_Height(self):
         if(self.useBar):

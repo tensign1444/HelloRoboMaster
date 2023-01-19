@@ -44,11 +44,13 @@ class Flight():
         mission_obj = {'ceiling': 160, 'floor': 50}
         # mission_obj = {'ceiling':150, 'floor':100}
         # mission_obj = {'ceiling':200, 'floor':100}
+        self.mission_name = 'Mission 05'
 
         # Connect to the DJI RoboMaster drone using a HeadsUpTello object
         # Try passing logging.INFO and see how your output changesy
         self.my_robomaster = Tello()
-        self.drone = HeadsUpTello(self.my_robomaster, mission_obj, logging.WARNING)
+        self.drone = HeadsUpTello(self.mission_name,self.my_robomaster, mission_obj, logging.INFO)
+
         self.inAir = False
 
     def read_json(self):
@@ -88,19 +90,26 @@ class Flight():
         if key == Key.up and self.inAir:
             self.drone.fly_up(20)
         if key == Key.down and self.inAir:
-
             self.drone.fly_down(20)
-
+        if key == Key.right and self.inAir:
+            self.drone.move_right(20)
+        if key == Key.left and self.inAir:
+            self.drone.move_left(20)
         if key == Key.delete:
             self.inAir = False
+
             return False
+
+
 
 
     """
     method to turn on the drone leds
     """
+
     def led(self):
         # Turn the top LED bright green and show our logo on the matrix display
+
         self.drone.matrix_pattern(self.huf_logo2, 'b')
         r = 0
         g = 200
