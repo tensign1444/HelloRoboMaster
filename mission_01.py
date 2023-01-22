@@ -5,7 +5,7 @@ import time
 import logging
 import json
 from pynput.keyboard import Key, Listener
-
+import Log
 # Custom modules for the drones
 from djitellopy import Tello
 from headsupflight import HeadsUpTello
@@ -41,6 +41,7 @@ class Flight():
 
 
     def __init__(self):
+
         mission_obj = {'ceiling': 160, 'floor': 50}
         # mission_obj = {'ceiling':150, 'floor':100}
         # mission_obj = {'ceiling':200, 'floor':100}

@@ -2,6 +2,7 @@ import time
 from djitellopy import Tello
 import dji_matrix as djim
 import logging
+import Log
 
 
 # ------------------------- BEGIN HeadsUpTello CLASS ----------------------------
@@ -29,33 +30,17 @@ class HeadsUpTello():
         # instead of inheritance (is-a) so that we can choose between the real
         # drone and a simulator. If we had used inheritance, we would be forced
         # to choose one or the other.
-        #-----------Logger_______________________
-        #thanks to https://docs.python.org/3/howto/logging.html for the logging source code.
 
-        self.logger = logging.getLogger(f'{mission_name}')
-
-        self.logger.setLevel(debug_level)
-
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.DEBUG)
-
-        # create formatter
-        formatter = logging.basicConfig(filename=f'{mission_name}.log', encoding='utf-8', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=debug_level)
-        # add formatter to ch
-        ch.setFormatter(formatter)
-
-        # add ch to logger
-        self.logger.addHandler(ch)
 
 
         #___________Drone Objects_______________
         self.drone = drone_baseobject
         self.drone.LOGGER.setLevel(debug_level)
-        self.logger.info("_________Log Beginning___________")
         self.inAir = False
         self.mission_obj = mission_obj
         self.useBar = True
 
+        self.logger = Log.Log("Test", "tie", 120, 10, "logpy", logging.INFO)
         try:
             self.drone.connect()
             self.logger.info("****Connected to ")
