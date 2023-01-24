@@ -13,7 +13,7 @@ class HeadsUpTello():
     Drone. Inherits from the djitellopy.Tello class.
     """
 
-    def __init__(self, mission_name, drone_baseobject, mission_obj = None,  debug_level=logging.INFO):
+    def __init__(self, mission_name, drone_baseobject, mission_obj=None, debug_level=logging.INFO):
         """
         Constuctor that establishes a connection with the drone. Pass in a new
         djitellopy Tello object give your HeadsUpTello object its wings.
@@ -31,9 +31,7 @@ class HeadsUpTello():
         # drone and a simulator. If we had used inheritance, we would be forced
         # to choose one or the other.
 
-
-
-        #___________Drone Objects_______________
+        # ___________Drone Objects_______________
         self.drone = drone_baseobject
         self.drone.LOGGER.setLevel(debug_level)
         self.inAir = False
@@ -56,7 +54,6 @@ class HeadsUpTello():
             self.disconnect()
             raise
         return
-
 
     def __del__(self):
         """ Destructor that gracefully closes the connection to the drone. """
@@ -103,7 +100,7 @@ class HeadsUpTello():
         64 letters in a row with values either (r)ed, (b)lue, (p)urple, or (0)
         off. The first 8 characters are the top row, the next 8 are the second
         row, and so on.
-        
+
         Arguments
             flattened_pattern: see examples in dji_matrix.py
             color:             'r', 'b', or 'p'
@@ -152,8 +149,7 @@ class HeadsUpTello():
         self.logger.info(f"Moving drone {direction} {cm} cm")
         self.drone.send_control_command(f"{direction} {cm}")
 
-
-    def fly_up(self,moveAmount = 0):
+    def fly_up(self, moveAmount=0):
         """
         Moves drone up by the user specified amount.
         """
@@ -162,13 +158,13 @@ class HeadsUpTello():
         self.logger.info(f"trying to move up {moveAmount}")
         self.logger.debug(f"ceiling height: {ceilingHeight}")
         self.logger.debug(f"current height: {currentHeight}")
-        if(currentHeight > ceilingHeight):
+        if (currentHeight > ceilingHeight):
             self.logger.warning(f"I am higher than the ceiling {ceilingHeight}, Going down...")
             moveAmount = currentHeight - ceilingHeight
             self.move_down(int(moveAmount))
-        elif(currentHeight == ceilingHeight):
+        elif (currentHeight == ceilingHeight):
             return
-        elif(currentHeight + moveAmount > ceilingHeight):
+        elif (currentHeight + moveAmount > ceilingHeight):
             self.logger.warning(f"Moving {moveAmount} will put me higher than ceiling height...")
             moveAmount = ceilingHeight - currentHeight
             self.logger.info(f"New move amount is {moveAmount}")
@@ -178,20 +174,20 @@ class HeadsUpTello():
             self.move_up(int(moveAmount))
         self.logger.debug(f"New currentheight: {self.get_Height()}")
 
-    def checkMoveDown(self,moveAmount):
+    def checkMoveDown(self, moveAmount):
         """
         Checks that the move amount is valid
         :param moveAmount: the amount to move
         :return:
         """
         self.printHeight()
-        if(currentHeight < floorHeight):
+        if (currentHeight < floorHeight):
             self.logger.warning(f"I am lower than the floor {floorHeight}, Going up...")
             moveAmount = floorHeight - currentHeight
             self.move_up(int(moveAmount))
-        elif(currentHeight == floorHeight):
+        elif (currentHeight == floorHeight):
             return
-        elif(currentHeight - moveAmount < floorHeight):
+        elif (currentHeight - moveAmount < floorHeight):
             self.logger.warning(f"Moving {moveAmount} will put me lower than floor height...")
             moveAmount = currentHeight - floorHeight
             self.logger.info(f"New move amount is {moveAmount}")
@@ -230,7 +226,7 @@ class HeadsUpTello():
             self.logger.info(f"Moving down {amount} cm.")
             self.drone.move_down(amount)
 
-    def move_right(self,amount):
+    def move_right(self, amount):
         """
         Moves the drone to the right
         :param amount: the amount in cm to move the drone to the right.
@@ -239,7 +235,7 @@ class HeadsUpTello():
         self.logger.info(f"Moving right {amount} cm.")
         self.move('right', amount)
 
-    def move_left(self,amount):
+    def move_left(self, amount):
         """
         Moves the drone to the left
         :param amount: the amount in cm to move drone to the right.
@@ -248,7 +244,7 @@ class HeadsUpTello():
         self.logger.info(f"Moving left {amount} cm.")
         self.move('left', amount)
 
-    def move_forward(self,amount):
+    def move_forward(self, amount):
         """
         Move the drone forward
         :param amount: the amount in cm to move drone forward
@@ -257,7 +253,7 @@ class HeadsUpTello():
         self.logger.info(f"Moving forward {amount} cm.")
         self.move('forward', amount)
 
-    def move_back(self,amount):
+    def move_back(self, amount):
         """
         Move the drone backward
         :param amount: the amount in cm to move the drone back
@@ -271,7 +267,7 @@ class HeadsUpTello():
         Gets the height of the drone either using get height or barometer
         :return: the height of the drone
         """
-        if(self.useBar):
+        if (self.useBar):
             return self.get_barometer() - self.barHeight
         return self.drone.get_height()
 
