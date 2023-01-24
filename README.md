@@ -1,8 +1,8 @@
-# HelloRoboMaster
+# LilTie
 
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
-A simple program that connects to a RoboMaster TT Drone and displays a logo on the 8x8 LED matrix. All communication with the drone is through the DJITelloPy module.
+A simple program that connects to a RoboMaster TT Drone (AKA LilTie). All communication with the drone is through the DJITelloPy module.
 
 ## Table of Contents
 - [Install](#install)
@@ -12,7 +12,7 @@ A simple program that connects to a RoboMaster TT Drone and displays a logo on t
 - [License](#license)
 
 ## Install
-Download the files to a directory on your computer. The quickest way to do this is using git. Then you must pip install the DJI `djitellopy` module that allows you to easily interface with the RoboMaster TT Drone without having to worry about UDP packets. The DJI module handles this all for you under the hood.
+If you would like to use LilTie's lifeline, download the files to a directory on your computer. The quickest way to do this is using git. Then you must pip install the DJI `djitellopy` module that allows you to easily interface with the RoboMaster TT Drone without having to worry about UDP packets. The DJI module handles this all for you under the hood.
 
 To see the specific compile steps, view the Makefile using a command like `cat Makefile`. The most basic compiling command would something like this:
 ```
@@ -73,9 +73,10 @@ Your drone should look something along these lines (although I believe this phot
 
 ## Maintainers
 [@JoshuaTallman](https://github.com/prof-tallman)
+[@nathanMDev](https://github.com/nathanMDev)
+[@koa-afusia](https://github.com/koa-afusia)
+[@tensign1444](https://github.com/tensign1444)
 
-## Contributing
-This program is written as an example for students.
 
 ## License
-[MIT](LICENSE) © [@JoshuaTallman](https://github.com/prof-tallman)
+[MIT](LICENSE)
