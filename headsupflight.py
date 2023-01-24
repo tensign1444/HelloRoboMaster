@@ -149,7 +149,7 @@ class HeadsUpTello():
 
     def move(self, direction, cm):
         """Moves the drone"""
-        self.logger.debug(f"Moving drone {direction} {cm} cm")
+        self.logger.info(f"Moving drone {direction} {cm} cm")
         self.drone.send_control_command(f"{direction} {cm}")
 
 
@@ -178,12 +178,13 @@ class HeadsUpTello():
             self.move_up(int(moveAmount))
         self.logger.debug(f"New currentheight: {self.get_Height()}")
 
-    def fly_down(self,moveAmount):
-        floorHeight = self.mission_obj["floor"]
-        currentHeight = self.get_Height()
-        self.logger.info(f"trying to move down {moveAmount}")
-        self.logger.debug(f"floor height: {floorHeight}")
-        self.logger.debug(f"current height: {currentHeight}")
+    def checkMoveDown(self,moveAmount):
+        """
+        Checks that the move amount is valid
+        :param moveAmount: the amount to move
+        :return:
+        """
+        self.printHeight()
         if(currentHeight < floorHeight):
             self.logger.warning(f"I am lower than the floor {floorHeight}, Going up...")
             moveAmount = floorHeight - currentHeight
@@ -206,9 +207,12 @@ class HeadsUpTello():
         """
         if amount < 20:
             self.logger.warning("Going to move down 30 then up 30 since move amount was {amount}")
+            self.logger.info(f"Moving down {amount} cm.")
             self.drone.move_down(amount + 20)
+            self.logger.info(f"Moving up {amount} cm.")
             self.drone.move_up(amount + 20)
         else:
+            self.logger.info(f"Moving up {amount} cm.")
             self.drone.move_up(amount)
 
     def move_down(self, amount):
@@ -217,26 +221,68 @@ class HeadsUpTello():
         """
         if amount < 20:
             self.logger.warning(f"Going to move up 30 then down 30 since move amount was {amount}")
+            self.logger.info(f"Moving up {amount} cm.")
             self.drone.move_up(amount + 20)
+            self.logger.info(f"Moving down {amount} cm.")
             self.drone.move_down(amount + 20)
         else:
+            self.logger.info(f"Moving down {amount} cm.")
             self.drone.move_down(amount)
 
     def move_right(self,amount):
+        """
+        Moves the drone to the right
+        :param amount: the amount in cm to move the drone to the right.
+        :return:
+        """
+        self.logger.info(f"Moving right {amount} cm.")
         self.move('right', amount)
 
     def move_left(self,amount):
+        """
+        Moves the drone to the left
+        :param amount: the amount in cm to move drone to the right.
+        :return:
+        """
+        self.logger.info(f"Moving left {amount} cm.")
         self.move('left', amount)
 
     def move_forward(self,amount):
+        """
+        Move the drone forward
+        :param amount: the amount in cm to move drone forward
+        :return:
+        """
+        self.logger.info(f"Moving forward {amount} cm.")
         self.move('forward', amount)
 
     def move_back(self,amount):
+        """
+        Move the drone backward
+        :param amount: the amount in cm to move the drone back
+        :return:
+        """
+        self.logger.info(f"Moving back {amount} cm.")
         self.move('back', amount)
 
     def get_Height(self):
+        """
+        Gets the height of the drone either using get height or barometer
+        :return: the height of the drone
+        """
         if(self.useBar):
             return self.get_barometer() - self.barHeight
         return self.drone.get_height()
+
+    def printHeight(self):
+        """
+        Function to print height to log, so we aren't being repetitive.
+        :return:
+        """
+        floorHeight = self.mission_obj["floor"]
+        ceilingHeight = self.mission_obj["ceiling"]
+        currentHeight = self.get_Height()
+        self.logger.debug(f"ceiling height: {ceilingHeight} || floor height: {floorHeight}")
+        self.logger.debug(f"current height: {currentHeight}")
 
 # ------------------------- END OF HeadsUpTello CLASS ---------------------------
