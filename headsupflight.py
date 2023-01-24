@@ -218,7 +218,7 @@ class HeadsUpTello():
     def move_down(self, amount):
         """
         Custom move down function to tell if the move amount is less than possible
-        test
+        test hello
         """
         if amount < 20:
             self.logger.warning(f"Going to move up 30 then down 30 since move amount was {amount}")
