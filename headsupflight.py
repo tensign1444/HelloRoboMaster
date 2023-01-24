@@ -37,6 +37,10 @@ class HeadsUpTello():
         self.inAir = False
         self.mission_obj = mission_obj
         self.useBar = True
+        self.homeX = 0
+        self.homeY = 0
+        self.x = 0
+        self.y = 0
 
         self.logger = Log.Log("Test", "tie", 120, 10, "logpy", logging.INFO)
         try:
@@ -138,6 +142,7 @@ class HeadsUpTello():
         self.drone.takeoff()
         self.inAir = True
 
+
     def land(self):
         """Lands the drone by sending the drone the land command"""
         self.logger.info("Drone is landing.")
@@ -211,6 +216,7 @@ class HeadsUpTello():
             self.logger.info(f"Moving up {amount} cm.")
             self.drone.move_up(amount)
 
+
     def move_down(self, amount):
         """
         Custom move down function to tell if the move amount is less than possible
@@ -234,6 +240,7 @@ class HeadsUpTello():
         """
         self.logger.info(f"Moving right {amount} cm.")
         self.move('right', amount)
+        self.y -= amount
 
     def move_left(self, amount):
         """
@@ -243,6 +250,7 @@ class HeadsUpTello():
         """
         self.logger.info(f"Moving left {amount} cm.")
         self.move('left', amount)
+        self.y += amount
 
     def move_forward(self, amount):
         """
@@ -252,6 +260,7 @@ class HeadsUpTello():
         """
         self.logger.info(f"Moving forward {amount} cm.")
         self.move('forward', amount)
+        self.x += amount
 
     def move_back(self, amount):
         """
@@ -261,6 +270,7 @@ class HeadsUpTello():
         """
         self.logger.info(f"Moving back {amount} cm.")
         self.move('back', amount)
+        self.x -= amount
 
     def get_Height(self):
         """
@@ -281,5 +291,16 @@ class HeadsUpTello():
         currentHeight = self.get_Height()
         self.logger.debug(f"ceiling height: {ceilingHeight} || floor height: {floorHeight}")
         self.logger.debug(f"current height: {currentHeight}")
+
+    def goHome(self):
+        if(self.y < self.homeY):
+            self.move_right(self.y - self.homeY)
+        elif(self.y > self.homeY):
+            self.move_left(self.homeY - self.y)
+
+        if (self.x < self.homeX):
+            self.move_right(self.x - self.homeX)
+        if (self.x > self.homeX):
+            self.move_left(self.homeX - self.x)
 
 # ------------------------- END OF HeadsUpTello CLASS ---------------------------
