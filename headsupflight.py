@@ -1,3 +1,4 @@
+import math
 import time
 from djitellopy import Tello
 import dji_matrix as djim
@@ -13,7 +14,7 @@ class HeadsUpTello():
     Drone. Inherits from the djitellopy.Tello class.
     """
 
-    def __init__(self, mission_name, drone_baseobject, mission_obj=None, debug_level=logging.INFO):
+    def __init__(self, drone_baseobject, mission_obj=None, debug_level=logging.INFO):
         """
         Constuctor that establishes a connection with the drone. Pass in a new
         djitellopy Tello object give your HeadsUpTello object its wings.
@@ -33,7 +34,6 @@ class HeadsUpTello():
 
         # ___________Drone Objects_______________
         self.drone = drone_baseobject
-        self.drone.LOGGER.setLevel(debug_level)
         self.inAir = False
         self.mission_obj = mission_obj
         self.useBar = True
@@ -42,8 +42,10 @@ class HeadsUpTello():
         self.homeZ = 0
         self.currentX = 0
         self.currentY = 0
+        self.currentRotation = 0
+        self.homeRotation = 0
 
-        self.logger = Log.Log("Test", "tie", 120, 10, "logpy", logging.INFO)
+        self.logger = Log.Log("Test", "tie", 120, 10, "lilTieLog", logging.INFO)
         try:
             self.drone.connect()
             self.logger.info("****Connected to ")
@@ -180,7 +182,7 @@ class HeadsUpTello():
             self.move_up(int(moveAmount))
         self.logger.debug(f"New currentheight: {self.get_Height()}")
 
-    def checkMoveDown(self, moveAmount):
+    def checkMoveDown(self, moveAmount, currentHeight, floorHeight):
         """
         Checks that the move amount is valid
         :param moveAmount: the amount to move
@@ -322,16 +324,33 @@ class HeadsUpTello():
         elif newZ > 0:
             self.move_up(newZ)
 
+    def rotate_ccw(self, degrees):
+        self.drone.rotate_counter_clockwise(degrees)
+
+
+    def rotate_cw(self, degrees):
+        self.drone.rotate_clockwise(degrees)
+
+
+
     def goHome(self):
         """
         Takes the drone home by using a custom go to specific position method.
         """
-        self.goToPosition(self.homeX, self.homeY, self.homeZ)
+        myradians = math.atan2(self.currentY, self.currentX)
+        mydegrees = math.degrees(myradians)
+        if self.currentY > 0 and self.currentX > 0 or self.currentY > 0 and self.currentX < 0:
+            self.rotate_cw(int(mydegrees))
+        elif self.currentY < 0 and self.currentX < 0 or self.currentY < 0 and self.currentX > 0 :
+            self.rotate_ccw(int(mydegrees))
+        self.move_forward(20)
+
 
     def newHome(self):
         """
         Sets new home coords for the drone.
         """
         self.homeX, self.homeY, self.homeZ = self.currentX, self.currentY, self.get_Height()
+
 
 # ------------------------- END OF HeadsUpTello CLASS ---------------------------

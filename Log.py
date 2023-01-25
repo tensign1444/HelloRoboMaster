@@ -13,14 +13,27 @@ class Log:
         self.floor = floor
         self.ceiling = ceiling
 
+        logging.basicConfig()
+
+        # By default the root logger is set to WARNING and all loggers you define
+        # inherit that value. Here we set the root logger to NOTSET. This logging
+        # level is automatically inherited by all existing and new sub-loggers
+        # that do not set a less verbose level.
+        logging.root.setLevel(logging.NOTSET)
+
+        # The following line sets the root logger level as well.
+        # It's equivalent to both previous statements combined:
+        logging.basicConfig(level=logging.NOTSET)
+
         self.logger = logging.getLogger(f'{self.mission_name}')
 
         # create formatter
         formatter = logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-        self.CheckForFile(log_dir)
+        #self.CheckForFile(log_dir)
         #file handler
         fileHandler = logging.FileHandler(f"{log_dir}.log")
+        fileHandler.setLevel(logging.INFO)
         fileHandler.setFormatter(formatter)
         self.logger.addHandler(fileHandler)
 
@@ -28,7 +41,7 @@ class Log:
         consoleHandler = logging.StreamHandler()
         consoleHandler.setLevel(logging.INFO)
         consoleHandler.setFormatter(formatter)
-        self.logger.addHandler(fileHandler)
+        self.logger.addHandler(consoleHandler)
         self.BeginLog()
 
 

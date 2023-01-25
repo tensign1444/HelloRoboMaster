@@ -4,7 +4,7 @@
 import time
 import logging
 import json
-from pynput.keyboard import Key, Listener
+import cv2, math, time
 import Log
 # Custom modules for the drones
 from djitellopy import Tello
@@ -50,7 +50,7 @@ class Flight():
         # Connect to the DJI RoboMaster drone using a HeadsUpTello object
         # Try passing logging.INFO and see how your output changesy
         self.my_robomaster = Tello()
-        self.drone = HeadsUpTello(self.mission_name,self.my_robomaster, mission_obj, logging.INFO)
+        self.drone = HeadsUpTello(self.my_robomaster, mission_obj, logging.INFO)
 
         self.inAir = False
 
@@ -75,34 +75,53 @@ class Flight():
 
         print(f"Battery: {self.drone.get_battery()}%")
         print(f"Temp °F: {self.drone.get_temperature()}")
-        with Listener(on_press=self.controller) as listener:
-            listener.join()
+        self.drone.takeoff()
+
+        self.drone.move_forward(20)
+        self.drone.move_right(30)
+        time.sleep(1)
+
+
+        self.drone.goHome()
+
+        time.sleep(1)
 
         self.drone.land()
         self.drone.disconnect()
         return
 
 
-    def controller(self,key):
+    def controller(self):
+        self.drone.streamon()
+        frame_read = self.drone.get_frame_read()
 
-        if key == Key.enter and not self.inAir:
-            self.drone.takeoff()
-            self.inAir = True
-        if key == Key.up and self.inAir:
-            self.drone.fly_up(20)
-        if key == Key.down and self.inAir:
-            self.drone.fly_down(20)
-        if key == Key.right and self.inAir:
-            self.drone.move_right(20)
-        if key == Key.left and self.inAir:
-            self.drone.move_left(20)
-        if key == Key.delete:
-            self.inAir = False
+        self.drone.takeoff()
 
-            return False
+        while True:
 
+            img = frame_read.frame
+            cv2.imshow("drone", img)
 
-
+            key = cv2.waitKey(1) & 0xff
+            if key == 27:  # ESC
+                break
+            elif key == ord('w'):
+                print("w pressed")
+                self.drone.move_forward(30)
+            elif key == ord('s'):
+                self.drone.move_back(30)
+            elif key == ord('a'):
+                self.drone.move_left(30)
+            elif key == ord('d'):
+                self.drone.move_right(30)
+            #  elif key == ord('e'):
+            # self.drone.rotate_clockwise(30)
+            # elif key == ord('q'):
+            #  self.drone.rotate_counter_clockwise(30)
+            elif key == ord('r'):
+                self.drone.move_up(30)
+            elif key == ord('f'):
+                self.drone.move_down(30)
 
     """
     method to turn on the drone leds
