@@ -39,8 +39,9 @@ class HeadsUpTello():
         self.useBar = True
         self.homeX = 0
         self.homeY = 0
-        self.x = 0
-        self.y = 0
+        self.homeZ = 0
+        self.currentX = 0
+        self.currentY = 0
 
         self.logger = Log.Log("Test", "tie", 120, 10, "logpy", logging.INFO)
         try:
@@ -240,7 +241,7 @@ class HeadsUpTello():
         """
         self.logger.info(f"Moving right {amount} cm.")
         self.move('right', amount)
-        self.y -= amount
+        self.currentY -= amount
 
     def move_left(self, amount):
         """
@@ -250,7 +251,7 @@ class HeadsUpTello():
         """
         self.logger.info(f"Moving left {amount} cm.")
         self.move('left', amount)
-        self.y += amount
+        self.currentY += amount
 
     def move_forward(self, amount):
         """
@@ -260,7 +261,7 @@ class HeadsUpTello():
         """
         self.logger.info(f"Moving forward {amount} cm.")
         self.move('forward', amount)
-        self.x += amount
+        self.currentX += amount
 
     def move_back(self, amount):
         """
@@ -270,7 +271,7 @@ class HeadsUpTello():
         """
         self.logger.info(f"Moving back {amount} cm.")
         self.move('back', amount)
-        self.x -= amount
+        self.currentX -= amount
 
     def get_Height(self):
         """
@@ -292,15 +293,45 @@ class HeadsUpTello():
         self.logger.debug(f"ceiling height: {ceilingHeight} || floor height: {floorHeight}")
         self.logger.debug(f"current height: {currentHeight}")
 
-    def goHome(self):
-        if(self.y < self.homeY):
-            self.move_right(self.y - self.homeY)
-        elif(self.y > self.homeY):
-            self.move_left(self.homeY - self.y)
+    def goToPosition(self, x, y, z):
+        """
+        Custom go to position method. Checks if the new move amount is negative or positive
+        this will then dictate the direction to go.
 
-        if (self.x < self.homeX):
-            self.move_right(self.x - self.homeX)
-        if (self.x > self.homeX):
-            self.move_left(self.homeX - self.x)
+        param: X, x-coordinate to go too.
+        param: Y, y-coordinate to go too.
+        param: Z, z-coordinate to go too.
+        return: none
+        """
+        self.logger.info(f"Going to position {x},{y}, {z} : X, Y, Z")
+        newX = x - self.currentX
+        newY = y - self.currentY
+        newZ = z - self.get_Height()
+        if newX < 0:
+            self.move_back(abs(newX))
+        elif newX > 0:
+            self.move_forward(newX)
+
+        if newY < 0:
+            self.move_right(abs(newY))
+        elif newY > 0:
+            self.move_left(newY)
+
+        if newZ < 0:
+            self.move_down(abs(newZ))
+        elif newZ > 0:
+            self.move_up(newZ)
+
+    def goHome(self):
+        """
+        Takes the drone home by using a custom go to specific position method.
+        """
+        self.goToPosition(self.homeX, self.homeY, self.homeZ)
+
+    def newHome(self):
+        """
+        Sets new home coords for the drone.
+        """
+        self.homeX, self.homeY, self.homeZ = self.currentX, self.currentY, self.get_Height()
 
 # ------------------------- END OF HeadsUpTello CLASS ---------------------------
