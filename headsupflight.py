@@ -154,7 +154,7 @@ class HeadsUpTello():
 
     def move(self, direction, cm):
         """Moves the drone"""
-        self.logger.info(f"Moving drone {direction} {cm} cm")
+        #self.logger.info(f"Moving drone {direction} {cm} cm")
         self.drone.send_control_command(f"{direction} {cm}")
 
     def fly_up(self, moveAmount=0):
@@ -337,15 +337,20 @@ class HeadsUpTello():
         """
         Takes the drone home by using a custom go to specific position method.
         """
-        myradians = math.atan2(self.currentY, self.currentX)
-        mydegrees = math.degrees(myradians)
+        self.rotateToPoint(self.homeX, self.homeY)
+        self.move_forward()
+
+
+    def rotateToPoint(self, x, y):
+        """
+        Rotates the drone to the exact point. This means the front of the drone will now face that point.
+        """
+        myradians = math.atan2(self.currentX, self.currentY)
+        mydegrees=abs(int(math.degrees(myradians)))
         if self.currentY > 0 and self.currentX > 0 or self.currentY > 0 and self.currentX < 0:
-            self.rotate_cw(360 - int(mydegrees))
+            self.rotate_cw(int(mydegrees))
         elif self.currentY < 0 and self.currentX < 0 or self.currentY < 0 and self.currentX > 0 :
-            self.rotate_ccw(360 - int(mydegrees))
-        self.move_forward(20)
-
-
+            self.rotate_ccw(int(mydegrees))
     def newHome(self):
         """
         Sets new home coords for the drone.
