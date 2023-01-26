@@ -263,7 +263,7 @@ class HeadsUpTello():
         """
         self.logger.info(f"Moving forward {amount} cm.")
         self.move('forward', amount)
-        self.currentX += amount
+        #self.currentX += amount
 
     def move_back(self, amount):
         """
@@ -294,6 +294,11 @@ class HeadsUpTello():
         currentHeight = self.get_Height()
         self.logger.debug(f"ceiling height: {ceilingHeight} || floor height: {floorHeight}")
         self.logger.debug(f"current height: {currentHeight}")
+
+    def goToPoisitionRotation(self, x, y):
+        self.rotateToPoint(x,y)
+        self.move_forward(math.sqrt((x ** 2) + (y ** 2)))
+        self.currentX, self.currentY = x, y
 
     def goToPosition(self, x, y, z):
         """
@@ -345,7 +350,7 @@ class HeadsUpTello():
         """
         Rotates the drone to the exact point. This means the front of the drone will now face that point.
         """
-        myradians = math.atan2(self.currentX, self.currentY)
+        myradians = math.atan2(x - self.currentX, y - self.currentY)
         mydegrees=abs(int(math.degrees(myradians)))
         if self.currentY > 0 and self.currentX > 0 or self.currentY > 0 and self.currentX < 0:
             self.rotate_cw(int(mydegrees))
