@@ -68,7 +68,7 @@ class Flight():
         """
         Requirements for Mission 01:
           >> Display team logo for 5 seconds
-          >> Print out the battery level
+          >> Print out the battery levell
         There are a few extra features I've included for fun.
         """
 
