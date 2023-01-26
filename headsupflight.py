@@ -340,9 +340,9 @@ class HeadsUpTello():
         myradians = math.atan2(self.currentY, self.currentX)
         mydegrees = math.degrees(myradians)
         if self.currentY > 0 and self.currentX > 0 or self.currentY > 0 and self.currentX < 0:
-            self.rotate_cw(int(mydegrees))
+            self.rotate_cw(360 - int(mydegrees))
         elif self.currentY < 0 and self.currentX < 0 or self.currentY < 0 and self.currentX > 0 :
-            self.rotate_ccw(int(mydegrees))
+            self.rotate_ccw(360 - int(mydegrees))
         self.move_forward(20)
 
 
