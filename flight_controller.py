@@ -77,8 +77,8 @@ class Flight():
         print(f"Temp °F: {self.drone.get_temperature()}")
         self.drone.takeoff()
 
-        self.drone.move_forward(20)
-        self.drone.move_right(30)
+        self.drone.move_forward(100)
+        self.drone.move_right(100)
         time.sleep(1)
 
 

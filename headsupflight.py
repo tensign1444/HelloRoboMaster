@@ -338,7 +338,7 @@ class HeadsUpTello():
         Takes the drone home by using a custom go to specific position method.
         """
         self.rotateToPoint(self.homeX, self.homeY)
-        self.move_forward()
+        self.move_forward(self.currentX)
 
 
     def rotateToPoint(self, x, y):
