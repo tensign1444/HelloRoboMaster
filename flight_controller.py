@@ -68,7 +68,7 @@ class Flight():
         """
         Requirements for Mission 01:
           >> Display team logo for 5 seconds
-          >> Print out the battery level
+          >> Print out the battery levell
         There are a few extra features I've included for fun.
         """
 
@@ -77,8 +77,9 @@ class Flight():
         print(f"Temp °F: {self.drone.get_temperature()}")
         self.drone.takeoff()
 
-        self.drone.move_forward(20)
-        self.drone.move_right(30)
+
+        self.drone.goToPoisitionRotation(50,50)
+        self.drone.goToPoisitionRotation(60,60)
         time.sleep(1)
 
 
