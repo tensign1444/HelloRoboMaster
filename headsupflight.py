@@ -140,10 +140,11 @@ class HeadsUpTello():
 
     def takeoff(self):
         """Lifts the drone off the ground by sending the takeoff command. Timeout was added to not error."""
-        self.logger.info("Drone is taking off.")
-        self.logger.info(f"current height: {self.get_Height()}")
-        self.drone.takeoff()
-        self.inAir = True
+        if (self.check_battery()):
+            self.logger.info("Drone is taking off.")
+            self.logger.info(f"current height: {self.get_Height()}")
+            self.drone.takeoff()
+            self.inAir = True
 
 
     def land(self):
@@ -209,15 +210,16 @@ class HeadsUpTello():
         """
         Custom move up function to tell if the move up amount is less than possible.
         """
-        if amount < 20:
-            self.logger.warning("Going to move down 30 then up 30 since move amount was {amount}")
-            self.logger.info(f"Moving down {amount} cm.")
-            self.drone.move_down(amount + 20)
-            self.logger.info(f"Moving up {amount} cm.")
-            self.drone.move_up(amount + 20)
-        else:
-            self.logger.info(f"Moving up {amount} cm.")
-            self.drone.move_up(amount)
+        if (self.check_battery()):
+            if amount < 20:
+                self.logger.warning("Going to move down 30 then up 30 since move amount was {amount}")
+                self.logger.info(f"Moving down {amount} cm.")
+                self.drone.move_down(amount + 20)
+                self.logger.info(f"Moving up {amount} cm.")
+                self.drone.move_up(amount + 20)
+            else:
+                self.logger.info(f"Moving up {amount} cm.")
+                self.drone.move_up(amount)
 
 
     def move_down(self, amount):
@@ -225,15 +227,16 @@ class HeadsUpTello():
         Custom move down function to tell if the move amount is less than possible
         test hello
         """
-        if amount < 20:
-            self.logger.warning(f"Going to move up 30 then down 30 since move amount was {amount}")
-            self.logger.info(f"Moving up {amount} cm.")
-            self.drone.move_up(amount + 20)
-            self.logger.info(f"Moving down {amount} cm.")
-            self.drone.move_down(amount + 20)
-        else:
-            self.logger.info(f"Moving down {amount} cm.")
-            self.drone.move_down(amount)
+        if (self.check_battery()):
+            if amount < 20:
+                self.logger.warning(f"Going to move up 30 then down 30 since move amount was {amount}")
+                self.logger.info(f"Moving up {amount} cm.")
+                self.drone.move_up(amount + 20)
+                self.logger.info(f"Moving down {amount} cm.")
+                self.drone.move_down(amount + 20)
+            else:
+                self.logger.info(f"Moving down {amount} cm.")
+                self.drone.move_down(amount)
 
     def move_right(self, amount):
         """
@@ -241,9 +244,10 @@ class HeadsUpTello():
         :param amount: the amount in cm to move the drone to the right.
         :return:
         """
-        self.logger.info(f"Moving right {amount} cm.")
-        self.move('right', amount)
-        self.currentY -= amount
+        if (self.check_battery()):
+            self.logger.info(f"Moving right {amount} cm.")
+            self.move('right', amount)
+            self.currentY -= amount
 
     def move_left(self, amount):
         """
@@ -251,9 +255,10 @@ class HeadsUpTello():
         :param amount: the amount in cm to move drone to the right.
         :return:
         """
-        self.logger.info(f"Moving left {amount} cm.")
-        self.move('left', amount)
-        self.currentY += amount
+        if (self.check_battery()):
+            self.logger.info(f"Moving left {amount} cm.")
+            self.move('left', amount)
+            self.currentY += amount
 
     def move_forward(self, amount):
         """
@@ -261,9 +266,10 @@ class HeadsUpTello():
         :param amount: the amount in cm to move drone forward
         :return:
         """
-        self.logger.info(f"Moving forward {amount} cm.")
-        self.move('forward', amount)
-        self.currentX += amount
+        if (self.check_battery()):
+            self.logger.info(f"Moving forward {amount} cm.")
+            self.move('forward', amount)
+            self.currentX += amount
 
     def move_back(self, amount):
         """
@@ -271,9 +277,10 @@ class HeadsUpTello():
         :param amount: the amount in cm to move the drone back
         :return:
         """
-        self.logger.info(f"Moving back {amount} cm.")
-        self.move('back', amount)
-        self.currentX -= amount
+        if (self.check_battery()):
+            self.logger.info(f"Moving back {amount} cm.")
+            self.move('back', amount)
+            self.currentX -= amount
 
     def get_Height(self):
         """
@@ -325,11 +332,13 @@ class HeadsUpTello():
             self.move_up(newZ)
 
     def rotate_ccw(self, degrees):
-        self.drone.rotate_counter_clockwise(degrees)
+        if(self.check_battery()):
+            self.drone.rotate_counter_clockwise(degrees)
 
 
     def rotate_cw(self, degrees):
-        self.drone.rotate_clockwise(degrees)
+        if (self.check_battery()):
+            self.drone.rotate_clockwise(degrees)
 
 
 
@@ -356,6 +365,17 @@ class HeadsUpTello():
         Sets new home coords for the drone.
         """
         self.homeX, self.homeY, self.homeZ = self.currentX, self.currentY, self.get_Height()
+
+    def check_battery(self):
+        """
+        Checks battery level
+        returns false if less than 20%, true if > 20%
+        """
+        if(self.get_battery() < 20):
+            self.logger.error("Battery too low!")
+            return False
+        else:
+            return True
 
 
 # ------------------------- END OF HeadsUpTello CLASS ---------------------------
