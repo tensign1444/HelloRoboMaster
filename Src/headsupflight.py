@@ -1,9 +1,7 @@
 import math
-import time
-from djitellopy import Tello
-import dji_matrix as djim
 import logging
-import Log
+from Util import Log
+from Util import Utility
 
 
 # ------------------------- BEGIN HeadsUpTello CLASS ----------------------------
@@ -14,7 +12,7 @@ class HeadsUpTello():
     Drone. Inherits from the djitellopy.Tello class.
     """
 
-    def __init__(self, drone_baseobject, mission_obj=None, debug_level=logging.INFO):
+    def __init__(self, drone_baseobject, minBat, mission_obj=None, debug_level=logging.INFO):
         """
         Constuctor that establishes a connection with the drone. Pass in a new
         djitellopy Tello object give your HeadsUpTello object its wings.
@@ -44,13 +42,14 @@ class HeadsUpTello():
         self.currentY = 0
         self.currentRotation = 0
         self.homeRotation = 0
+        self.minBatteryLevel = minBat
 
         self.logger = Log.Log("Test", "tie", 120, 10, "lilTieLog", logging.INFO)
         try:
             self.drone.connect()
             self.logger.info("****Connected to ")
             self.connected = True
-            self.barHeight = self.get_barometer()
+            self.barHeight = Utility.get_barometer(self.drone)
         except Exception as excp:
             self.logger.error(f"ERROR: could not connect to Trello Drone: {excp}")
             self.logger.critical(f" => Did you pass in a valid drone base object?")
@@ -76,76 +75,13 @@ class HeadsUpTello():
         print(f"Drone connection closed gracefully")
         return
 
-    def top_led_color(self, red: int, green: int, blue: int):
-        """
-        Change the top LED to the specified color. The colors don't match the
-        normal RGB palette very well.
-
-        Arguments
-            red:   0-255
-            green: 0-255
-            blue:  0-255
-        """
-
-        r = djim.capped_color(red)
-        g = djim.capped_color(green)
-        b = djim.capped_color(blue)
-        cmd = f"EXT led {r} {g} {b}"
-        self.drone.send_control_command(cmd)
-        return
-
-    def top_led_off(self):
-        """ Turn off the top LED. """
-
-        cmd = f"EXT led 0 0 0"
-        self.drone.send_control_command(cmd)
-        return
-
-    def matrix_pattern(self, flattened_pattern: str, color: str = 'b'):
-        """
-        Show the flattened pattern on the LED matrix. The pattern should be 
-        64 letters in a row with values either (r)ed, (b)lue, (p)urple, or (0)
-        off. The first 8 characters are the top row, the next 8 are the second
-        row, and so on.
-
-        Arguments
-            flattened_pattern: see examples in dji_matrix.py
-            color:             'r', 'b', or 'p'
-        """
-
-        if color.lower() not in "rpb":
-            color = 'b'
-        cmd = f"EXT mled g {flattened_pattern.replace('*', color.lower())}"
-        self.drone.send_control_command(cmd)
-        return
-
-    def matrix_off(self):
-        """ Turn off the 64 LED matrix. """
-
-        off_pattern = "0" * 64
-        self.matrix_pattern(off_pattern)
-        return
-
-    def get_battery(self):
-        """ Returns the drone's battery level as a percent. """
-        return self.drone.get_battery()
-
-    def get_barometer(self):
-        """ Returns the drone's current barometer reading in cm. """
-        return self.drone.get_barometer()
-
-    def get_temperature(self):
-        """ Returns the drone's internal temperature in °F. """
-        return self.drone.get_temperature()
-
     def takeoff(self):
         """Lifts the drone off the ground by sending the takeoff command. Timeout was added to not error."""
-        if (self.check_battery()):
+        if Utility:
             self.logger.info("Drone is taking off.")
-            self.logger.info(f"current height: {self.get_Height()}")
+            self.logger.info(f"current height: {Utility.get_Height(self.drone, self.useBar, self.barHeight)}")
             self.drone.takeoff()
             self.inAir = True
-
 
     def land(self):
         """Lands the drone by sending the drone the land command"""
@@ -155,7 +91,7 @@ class HeadsUpTello():
 
     def move(self, direction, cm):
         """Moves the drone"""
-        #self.logger.info(f"Moving drone {direction} {cm} cm")
+        # self.logger.info(f"Moving drone {direction} {cm} cm")
         self.drone.send_control_command(f"{direction} {cm}")
 
     def fly_up(self, moveAmount=0):
@@ -163,17 +99,17 @@ class HeadsUpTello():
         Moves drone up by the user specified amount.
         """
         ceilingHeight = self.mission_obj["ceiling"]
-        currentHeight = self.get_Height()
+        currentHeight = Utility.get_Height(self.drone)
         self.logger.info(f"trying to move up {moveAmount}")
         self.logger.debug(f"ceiling height: {ceilingHeight}")
         self.logger.debug(f"current height: {currentHeight}")
-        if (currentHeight > ceilingHeight):
+        if currentHeight > ceilingHeight:
             self.logger.warning(f"I am higher than the ceiling {ceilingHeight}, Going down...")
             moveAmount = currentHeight - ceilingHeight
             self.move_down(int(moveAmount))
-        elif (currentHeight == ceilingHeight):
+        elif currentHeight == ceilingHeight:
             return
-        elif (currentHeight + moveAmount > ceilingHeight):
+        elif currentHeight + moveAmount > ceilingHeight:
             self.logger.warning(f"Moving {moveAmount} will put me higher than ceiling height...")
             moveAmount = ceilingHeight - currentHeight
             self.logger.info(f"New move amount is {moveAmount}")
@@ -181,7 +117,7 @@ class HeadsUpTello():
         else:
             self.logger.debug(f"moving: {moveAmount}")
             self.move_up(int(moveAmount))
-        self.logger.debug(f"New currentheight: {self.get_Height()}")
+        self.logger.debug(f"New currentheight: {Utility.get_Height(self.drone, self.useBar)}")
 
     def checkMoveDown(self, moveAmount, currentHeight, floorHeight):
         """
@@ -189,14 +125,14 @@ class HeadsUpTello():
         :param moveAmount: the amount to move
         :return:
         """
-        self.printHeight()
-        if (currentHeight < floorHeight):
+        Utility.printHeight(self.drone, self.logger, self.mission_obj)
+        if currentHeight < floorHeight:
             self.logger.warning(f"I am lower than the floor {floorHeight}, Going up...")
             moveAmount = floorHeight - currentHeight
             self.move_up(int(moveAmount))
-        elif (currentHeight == floorHeight):
+        elif currentHeight == floorHeight:
             return
-        elif (currentHeight - moveAmount < floorHeight):
+        elif currentHeight - moveAmount < floorHeight:
             self.logger.warning(f"Moving {moveAmount} will put me lower than floor height...")
             moveAmount = currentHeight - floorHeight
             self.logger.info(f"New move amount is {moveAmount}")
@@ -204,13 +140,13 @@ class HeadsUpTello():
         else:
             self.logger.debug(f"moving: {moveAmount}")
             self.move_down(int(moveAmount))
-        self.logger.debug(f"New currentheight: {self.get_Height()}")
+        self.logger.debug(f"New currentheight: {Utility.get_Height(self.drone, self.useBar)}")
 
     def move_up(self, amount):
         """
         Custom move up function to tell if the move up amount is less than possible.
         """
-        if (self.check_battery()):
+        if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
             if amount < 20:
                 self.logger.warning("Going to move down 30 then up 30 since move amount was {amount}")
                 self.logger.info(f"Moving down {amount} cm.")
@@ -221,13 +157,12 @@ class HeadsUpTello():
                 self.logger.info(f"Moving up {amount} cm.")
                 self.drone.move_up(amount)
 
-
     def move_down(self, amount):
         """
         Custom move down function to tell if the move amount is less than possible
         test hello
         """
-        if (self.check_battery()):
+        if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
             if amount < 20:
                 self.logger.warning(f"Going to move up 30 then down 30 since move amount was {amount}")
                 self.logger.info(f"Moving up {amount} cm.")
@@ -244,7 +179,7 @@ class HeadsUpTello():
         :param amount: the amount in cm to move the drone to the right.
         :return:
         """
-        if (self.check_battery()):
+        if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
             self.logger.info(f"Moving right {amount} cm.")
             self.move('right', amount)
             self.currentY -= amount
@@ -255,7 +190,7 @@ class HeadsUpTello():
         :param amount: the amount in cm to move drone to the right.
         :return:
         """
-        if (self.check_battery()):
+        if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
             self.logger.info(f"Moving left {amount} cm.")
             self.move('left', amount)
             self.currentY += amount
@@ -266,10 +201,10 @@ class HeadsUpTello():
         :param amount: the amount in cm to move drone forward
         :return:
         """
-        if (self.check_battery()):
-            self.logger.info(f"Moving forward {amount} cm.")
-            self.move('forward', amount)
-            self.currentX += amount
+        #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+        self.logger.info(f"Moving forward {amount} cm.")
+        self.move('forward', amount)
+        self.currentX += amount
 
     def move_back(self, amount):
         """
@@ -277,30 +212,10 @@ class HeadsUpTello():
         :param amount: the amount in cm to move the drone back
         :return:
         """
-        if (self.check_battery()):
+        if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
             self.logger.info(f"Moving back {amount} cm.")
             self.move('back', amount)
             self.currentX -= amount
-
-    def get_Height(self):
-        """
-        Gets the height of the drone either using get height or barometer
-        :return: the height of the drone
-        """
-        if (self.useBar):
-            return self.get_barometer() - self.barHeight
-        return self.drone.get_height()
-
-    def printHeight(self):
-        """
-        Function to print height to log, so we aren't being repetitive.
-        :return:
-        """
-        floorHeight = self.mission_obj["floor"]
-        ceilingHeight = self.mission_obj["ceiling"]
-        currentHeight = self.get_Height()
-        self.logger.debug(f"ceiling height: {ceilingHeight} || floor height: {floorHeight}")
-        self.logger.debug(f"current height: {currentHeight}")
 
     def goToPosition(self, x, y, z):
         """
@@ -315,7 +230,7 @@ class HeadsUpTello():
         self.logger.info(f"Going to position {x},{y}, {z} : X, Y, Z")
         newX = x - self.currentX
         newY = y - self.currentY
-        newZ = z - self.get_Height()
+        newZ = z - Utility.get_Height(self.drone)
         if newX < 0:
             self.move_back(abs(newX))
         elif newX > 0:
@@ -331,16 +246,22 @@ class HeadsUpTello():
         elif newZ > 0:
             self.move_up(newZ)
 
-    def rotate_ccw(self, degrees):
-        if(self.check_battery()):
-            self.drone.rotate_counter_clockwise(degrees)
+    def go_to_point_rotation(self, x, y):
+        self.rotateToPoint(x, y)
+        current = [self.currentX, self.currentY]
+        new = [x, y]
+        distance = math.dist(current, new)
+        self.move_forward(distance)
 
+    def rotate_ccw(self, degrees):
+        #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+            #self.drone.rotate_counter_clockwise(degrees)
+        self.drone.rotate_counter_clockwise(degrees)
 
     def rotate_cw(self, degrees):
-        if (self.check_battery()):
-            self.drone.rotate_clockwise(degrees)
-
-
+        #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+            #self.drone.rotate_clockwise(degrees)
+        self.drone.rotate_clockwise(degrees)
 
     def goHome(self):
         """
@@ -349,33 +270,21 @@ class HeadsUpTello():
         self.rotateToPoint(self.homeX, self.homeY)
         self.move_forward()
 
-
     def rotateToPoint(self, x, y):
         """
         Rotates the drone to the exact point. This means the front of the drone will now face that point.
         """
-        myradians = math.atan2(self.currentX, self.currentY)
-        mydegrees=abs(int(math.degrees(myradians)))
-        if self.currentY > 0 and self.currentX > 0 or self.currentY > 0 and self.currentX < 0:
+        myradians = math.atan2(x - self.currentX, y - self.currentY)
+        mydegrees = abs(int(math.degrees(myradians)))
+        if self.currentY > 0 and self.currentX > 0 or self.currentY > 0 and self.currentX < 0 or x < 0 and y < 0 or y < 0 and x > 0:
             self.rotate_cw(int(mydegrees))
-        elif self.currentY < 0 and self.currentX < 0 or self.currentY < 0 and self.currentX > 0 :
+        elif self.currentY < 0 and self.currentX < 0 or self.currentY < 0 and self.currentX > 0 or y > 0 and x > 0 or y > 0 and x < 0:
             self.rotate_ccw(int(mydegrees))
+
     def newHome(self):
         """
         Sets new home coords for the drone.
         """
-        self.homeX, self.homeY, self.homeZ = self.currentX, self.currentY, self.get_Height()
-
-    def check_battery(self):
-        """
-        Checks battery level
-        returns false if less than 20%, true if > 20%
-        """
-        if(self.get_battery() < 20):
-            self.logger.error("Battery too low!")
-            return False
-        else:
-            return True
-
+        self.homeX, self.homeY, self.homeZ = self.currentX, self.currentY, Utility.get_Height(self.drone, self.useBar)
 
 # ------------------------- END OF HeadsUpTello CLASS ---------------------------

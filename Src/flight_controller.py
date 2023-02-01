@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 
 # Standard python modules
-import time
 import logging
 import json
-import cv2, math, time
-import Log
+import cv2, time
 # Custom modules for the drones
 from djitellopy import Tello
-from headsupflight import HeadsUpTello
+from Src.headsupflight import HeadsUpTello
+from Util import Utility
 
 
 #-------------------------------------------------------------------------------
@@ -50,7 +49,7 @@ class Flight():
         # Connect to the DJI RoboMaster drone using a HeadsUpTello object
         # Try passing logging.INFO and see how your output changesy
         self.my_robomaster = Tello()
-        self.drone = HeadsUpTello(self.my_robomaster, mission_obj, logging.INFO)
+        self.drone = HeadsUpTello(self.my_robomaster, mission_obj, 20, logging.INFO)
 
         self.inAir = False
 
@@ -60,7 +59,7 @@ class Flight():
         returns it as a dictionary
         """
         # Opening JSON file
-        with open('mission_obj.json') as json_file:
+        with open('../mission_obj.json') as json_file:
             data = json.load(json_file)
         return data
 
@@ -73,17 +72,17 @@ class Flight():
         """
 
 
-        print(f"Battery: {self.drone.get_battery()}%")
-        print(f"Temp °F: {self.drone.get_temperature()}")
+        print(f"Battery: {Utility.get_battery(self.my_robomaster)}%")
+        print(f"Temp °F: {Utility.get_temperature(self.my_robomaster)}")
         self.drone.takeoff()
 
 
-        self.drone.goToPoisitionRotation(50,50)
-        self.drone.goToPoisitionRotation(60,60)
+        self.drone.go_to_point_rotation(50,50)
+        self.drone.go_to_point_rotation(-60,-60)
         time.sleep(1)
 
 
-        self.drone.goHome()
+        self.drone.go_to_point_rotation(0,0)
 
         time.sleep(1)
 
@@ -166,5 +165,6 @@ if __name__ == '__main__':
     except Exception as excp:
         print(excp)
         print(f"Mission aborted")
+
 
 
