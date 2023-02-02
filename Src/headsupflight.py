@@ -252,6 +252,7 @@ class HeadsUpTello():
         new = [x, y]
         distance = math.dist(current, new)
         self.move_forward(distance)
+        self.currentY = y
 
     def rotate_ccw(self, degrees):
         #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
@@ -277,7 +278,7 @@ class HeadsUpTello():
         myradians = math.atan2(x - self.currentX, y - self.currentY)
         mydegrees = abs(int(math.degrees(myradians)))
         if self.currentY > 0 and self.currentX > 0 or self.currentY > 0 and self.currentX < 0 or x < 0 and y < 0 or y < 0 and x > 0:
-            self.rotate_cw(int(mydegrees))
+            self.rotate_cw(360 - int(mydegrees))
         elif self.currentY < 0 and self.currentX < 0 or self.currentY < 0 and self.currentX > 0 or y > 0 and x > 0 or y > 0 and x < 0:
             self.rotate_ccw(int(mydegrees))
 

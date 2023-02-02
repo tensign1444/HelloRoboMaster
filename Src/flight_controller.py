@@ -10,34 +10,31 @@ from Src.headsupflight import HeadsUpTello
 from Util import Utility
 
 
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 # LED Matrix Display Pictures
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 class Flight():
-
     # Two ways of storing the same logo... second one is easier to see, right?
     huf_logo1 = "000**000000**0000******00******0000**000000**000000**000000**000"
-    huf_logo2 = "*000000*" +\
-            "*000000*" +\
-            "*00**00*" +\
-            "********" +\
-            "********" +\
-            "*00**00*" +\
-            "*000000*" +\
-            "*000000*"
+    huf_logo2 = "*000000*" + \
+                "*000000*" + \
+                "*00**00*" + \
+                "********" + \
+                "********" + \
+                "*00**00*" + \
+                "*000000*" + \
+                "*000000*"
 
+    huf_logo3 = "*0*00000" + \
+                "***00000" + \
+                "*0*00000" + \
+                "00000000" + \
+                "00000000" + \
+                "00000000" + \
+                "00000000" + \
+                "00000000"
 
-    huf_logo3 = "*0*00000" +\
-            "***00000" +\
-            "*0*00000" +\
-            "00000000" +\
-            "00000000" +\
-            "00000000" +\
-            "00000000" +\
-            "00000000"
-
-    #----------------------------------currentHeight
-
+    # ----------------------------------currentHeight
 
     def __init__(self):
 
@@ -71,25 +68,21 @@ class Flight():
         There are a few extra features I've included for fun.
         """
 
-
         print(f"Battery: {Utility.get_battery(self.my_robomaster)}%")
         print(f"Temp °F: {Utility.get_temperature(self.my_robomaster)}")
         self.drone.takeoff()
 
-
-        self.drone.go_to_point_rotation(50,50)
-        self.drone.go_to_point_rotation(-60,-60)
+        self.drone.go_to_point_rotation(50, 50)
+        self.drone.go_to_point_rotation(-60, 60)
         time.sleep(1)
 
-
-        self.drone.go_to_point_rotation(0,0)
+        self.drone.go_to_point_rotation(0, 0)
 
         time.sleep(1)
 
         self.drone.land()
         self.drone.disconnect()
         return
-
 
     def controller(self):
         self.drone.streamon()
@@ -153,9 +146,10 @@ class Flight():
         self.drone.matrix_off()
         self.drone.top_led_off()
 
-#-------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------
 # Python Entry Point
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
 
 if __name__ == '__main__':
     try:
@@ -165,6 +159,3 @@ if __name__ == '__main__':
     except Exception as excp:
         print(excp)
         print(f"Mission aborted")
-
-
-
