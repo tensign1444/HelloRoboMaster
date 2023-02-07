@@ -277,10 +277,12 @@ class HeadsUpTello():
         """
         myradians = math.atan2(x - self.currentX, y - self.currentY)
         mydegrees = abs(int(math.degrees(myradians)))
-        if self.currentY > 0 and self.currentX > 0 or self.currentY > 0 and self.currentX < 0 or x < 0 and y < 0 or y < 0 and x > 0:
-            self.rotate_cw(360 - int(mydegrees))
-        elif self.currentY < 0 and self.currentX < 0 or self.currentY < 0 and self.currentX > 0 or y > 0 and x > 0 or y > 0 and x < 0:
-            self.rotate_ccw(int(mydegrees))
+        ccwRotation = int(mydegrees)
+        cwRotation = 360 - int(mydegrees)
+        if ccwRotation > cwRotation:
+            self.rotate_cw(cwRotation)
+        else:
+            self.rotate_ccw(ccwRotation)
 
     def newHome(self):
         """
