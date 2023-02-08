@@ -247,11 +247,12 @@ class HeadsUpTello():
             self.move_up(newZ)
 
     def go_to_point_rotation(self, x, y):
+        """
+        Goes to a point with rotation
+        """
         self.getRotateAmount(x, y)
-        current = [self.currentX, self.currentY]
-        new = [x, y]
-        distance = math.dist(current, new)
-        self.move_forward(distance)
+        self.move_forward(Utility.get_c(self.currentX,self.currentY,x,y))
+        self.currentX = x
         self.currentY = y
 
     def rotate_ccw(self, degrees):
@@ -270,12 +271,11 @@ class HeadsUpTello():
             #self.drone.rotate_clockwise(degrees)
         self.drone.rotate_clockwise(degrees)
 
-    def goHome(self):
+    def goHome(self, directFlight):
         """
         Takes the drone home by using a custom go to specific position method.
         """
-        self.getRotateAmount(self.homeX, self.homeY)
-        self.move_forward()
+        self.fly_to_coordinates(self.homeX, self.homeY, directFlight)
 
     def getRotateAmount(self, x, y):
         """
@@ -285,7 +285,7 @@ class HeadsUpTello():
         mydegrees = abs(int(math.degrees(myradians)))
         return mydegrees
 
-    def rotate_to_bearing(degrees):
+    def rotate_to_bearing(self,degrees):
         """
         Rotates the drone to a specific bearing by finding the shortest rotation path given the amount of degrees.
         """
@@ -303,7 +303,7 @@ class HeadsUpTello():
         self.homeX, self.homeY, self.homeZ = self.currentX, self.currentY, Utility.get_Height(self.drone, self.useBar)
 
 
-    def fly_to_coordinates(x, y, direct_flight=False):
+    def fly_to_coordinates(self,x, y, direct_flight=False):
         """
         Fly the drone to a specific coordinate and decide if you want direct flight.
         """
@@ -311,6 +311,8 @@ class HeadsUpTello():
             self.go_to_point_rotation(x,y)
         else:
             self.goToPosition(x,y)
+
+
 
 
 # ------------------------- END OF HeadsUpTello CLASS ---------------------------

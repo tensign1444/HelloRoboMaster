@@ -38,7 +38,7 @@ class Flight():
 
     def __init__(self):
 
-        mission_obj = {'ceiling': 160, 'floor': 50}
+        mission_obj = {'ceiling': 500, 'floor': 50}
         # mission_obj = {'ceiling':150, 'floor':100}
         # mission_obj = {'ceiling':200, 'floor':100}
         self.mission_name = 'Mission 05'
@@ -72,14 +72,10 @@ class Flight():
         print(f"Temp °F: {Utility.get_temperature(self.my_robomaster)}")
         self.drone.takeoff()
 
-        self.drone.go_to_point_rotation(50, 50)
-        self.drone.go_to_point_rotation(-60, 60)
+        self.drone.move_up(100)
+        self.drone.fly_to_coordinates(400,300,True)
+        self.drone.goHome(False)
         time.sleep(1)
-
-        self.drone.go_to_point_rotation(0, 0)
-
-        time.sleep(1)
-
         self.drone.land()
         self.drone.disconnect()
         return

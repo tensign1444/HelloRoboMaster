@@ -1,3 +1,5 @@
+import math
+from math import radians, sin
 from Util import dji_matrix as djim
 from djitellopy import Tello
 
@@ -103,3 +105,19 @@ def matrix_off(drone):
     off_pattern = "0" * 64
     matrix_pattern(drone, off_pattern)
     return
+
+
+def get_unknown_sides(a1, a2, c):
+    """
+    Gets sides a and b when given side c and two angles.
+    """
+    a1, a2 = radians(a1), radians(a2)
+    a3 = 3.14159 - a1 - a2
+
+    return (c / sin(a3)) * sin(a1), (c / sin(a3)) * sin(a2)
+
+def get_c(currentX, currentY, x, y):
+    current = [currentX, currentY]
+    new = [x, y]
+    distance = math.dist(current, new)
+    return distance
