@@ -146,32 +146,32 @@ class HeadsUpTello():
         """
         Custom move up function to tell if the move up amount is less than possible.
         """
-        if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
-            if amount < 20:
-                self.logger.warning("Going to move down 30 then up 30 since move amount was {amount}")
-                self.logger.info(f"Moving down {amount} cm.")
-                self.drone.move_down(amount + 20)
-                self.logger.info(f"Moving up {amount} cm.")
-                self.drone.move_up(amount + 20)
-            else:
-                self.logger.info(f"Moving up {amount} cm.")
-                self.drone.move_up(amount)
+        #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+        if amount < 20:
+            self.logger.warning("Going to move down 30 then up 30 since move amount was {amount}")
+            self.logger.info(f"Moving down {amount} cm.")
+            self.drone.move_down(amount + 20)
+            self.logger.info(f"Moving up {amount} cm.")
+            self.drone.move_up(amount + 20)
+        else:
+            self.logger.info(f"Moving up {amount} cm.")
+            self.drone.move_up(amount)
 
     def move_down(self, amount):
         """
         Custom move down function to tell if the move amount is less than possible
         test hello
         """
-        if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
-            if amount < 20:
-                self.logger.warning(f"Going to move up 30 then down 30 since move amount was {amount}")
-                self.logger.info(f"Moving up {amount} cm.")
-                self.drone.move_up(amount + 20)
-                self.logger.info(f"Moving down {amount} cm.")
-                self.drone.move_down(amount + 20)
-            else:
-                self.logger.info(f"Moving down {amount} cm.")
-                self.drone.move_down(amount)
+        #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+        if amount < 20:
+            self.logger.warning(f"Going to move up 30 then down 30 since move amount was {amount}")
+            self.logger.info(f"Moving up {amount} cm.")
+            self.drone.move_up(amount + 20)
+            self.logger.info(f"Moving down {amount} cm.")
+            self.drone.move_down(amount + 20)
+        else:
+            self.logger.info(f"Moving down {amount} cm.")
+            self.drone.move_down(amount)
 
     def move_right(self, amount):
         """
@@ -179,10 +179,10 @@ class HeadsUpTello():
         :param amount: the amount in cm to move the drone to the right.
         :return:
         """
-        if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
-            self.logger.info(f"Moving right {amount} cm.")
-            self.move('right', amount)
-            self.currentY -= amount
+        #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+        self.logger.info(f"Moving right {amount} cm.")
+        self.move('right', amount)
+        self.currentY -= amount
 
     def move_left(self, amount):
         """
@@ -190,10 +190,10 @@ class HeadsUpTello():
         :param amount: the amount in cm to move drone to the right.
         :return:
         """
-        if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
-            self.logger.info(f"Moving left {amount} cm.")
-            self.move('left', amount)
-            self.currentY += amount
+        #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+        self.logger.info(f"Moving left {amount} cm.")
+        self.move('left', amount)
+        self.currentY += amount
 
     def move_forward(self, amount):
         """
@@ -212,12 +212,12 @@ class HeadsUpTello():
         :param amount: the amount in cm to move the drone back
         :return:
         """
-        if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
-            self.logger.info(f"Moving back {amount} cm.")
-            self.move('back', amount)
-            self.currentX -= amount
+        #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+        self.logger.info(f"Moving back {amount} cm.")
+        self.move('back', amount)
+        self.currentX -= amount
 
-    def goToPosition(self, x, y, z):
+    def goToPosition(self, x, y):
         """
         Custom go to position method. Checks if the new move amount is negative or positive
         this will then dictate the direction to go.
@@ -227,10 +227,9 @@ class HeadsUpTello():
         param: Z, z-coordinate to go too.
         return: none
         """
-        self.logger.info(f"Going to position {x},{y}, {z} : X, Y, Z")
+        self.logger.info(f"Going to position {x},{y} : X, Y, Z")
         newX = x - self.currentX
         newY = y - self.currentY
-        newZ = z - Utility.get_Height(self.drone)
         if newX < 0:
             self.move_back(abs(newX))
         elif newX > 0:
@@ -241,16 +240,11 @@ class HeadsUpTello():
         elif newY > 0:
             self.move_left(newY)
 
-        if newZ < 0:
-            self.move_down(abs(newZ))
-        elif newZ > 0:
-            self.move_up(newZ)
-
     def go_to_point_rotation(self, x, y):
         """
         Goes to a point with rotation
         """
-        self.getRotateAmount(x, y)
+        self.rotate_to_bearing(self.getRotateAmount(x, y))
         self.move_forward(Utility.get_c(self.currentX,self.currentY,x,y))
         self.currentX = x
         self.currentY = y

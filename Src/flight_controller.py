@@ -72,9 +72,9 @@ class Flight():
         print(f"Temp °F: {Utility.get_temperature(self.my_robomaster)}")
         self.drone.takeoff()
 
-        self.drone.move_up(100)
+        #self.drone.move_up(50)
         self.drone.fly_to_coordinates(400,300,True)
-        self.drone.goHome(False)
+        #self.drone.goHome(False)
         time.sleep(1)
         self.drone.land()
         self.drone.disconnect()
