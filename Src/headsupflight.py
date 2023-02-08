@@ -247,7 +247,7 @@ class HeadsUpTello():
             self.move_up(newZ)
 
     def go_to_point_rotation(self, x, y):
-        self.rotateToPoint(x, y)
+        self.getRotateAmount(x, y)
         current = [self.currentX, self.currentY]
         new = [x, y]
         distance = math.dist(current, new)
@@ -255,11 +255,17 @@ class HeadsUpTello():
         self.currentY = y
 
     def rotate_ccw(self, degrees):
+        """
+        Rotates the drone counter-clock wise
+        """
         #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
             #self.drone.rotate_counter_clockwise(degrees)
         self.drone.rotate_counter_clockwise(degrees)
 
     def rotate_cw(self, degrees):
+        """
+        Rotates the drone clockwise.
+        """
         #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
             #self.drone.rotate_clockwise(degrees)
         self.drone.rotate_clockwise(degrees)
@@ -268,17 +274,23 @@ class HeadsUpTello():
         """
         Takes the drone home by using a custom go to specific position method.
         """
-        self.rotateToPoint(self.homeX, self.homeY)
+        self.getRotateAmount(self.homeX, self.homeY)
         self.move_forward()
 
-    def rotateToPoint(self, x, y):
+    def getRotateAmount(self, x, y):
         """
         Rotates the drone to the exact point. This means the front of the drone will now face that point.
         """
         myradians = math.atan2(x - self.currentX, y - self.currentY)
         mydegrees = abs(int(math.degrees(myradians)))
-        ccwRotation = int(mydegrees)
-        cwRotation = 360 - int(mydegrees)
+        return mydegrees
+
+    def rotate_to_bearing(degrees):
+        """
+        Rotates the drone to a specific bearing by finding the shortest rotation path given the amount of degrees.
+        """
+        ccwRotation = int(degrees)
+        cwRotation = 360 - int(degrees)
         if ccwRotation > cwRotation:
             self.rotate_cw(cwRotation)
         else:
@@ -289,5 +301,16 @@ class HeadsUpTello():
         Sets new home coords for the drone.
         """
         self.homeX, self.homeY, self.homeZ = self.currentX, self.currentY, Utility.get_Height(self.drone, self.useBar)
+
+
+    def fly_to_coordinates(x, y, direct_flight=False):
+        """
+        Fly the drone to a specific coordinate and decide if you want direct flight.
+        """
+        if direct_flight:
+            self.go_to_point_rotation(x,y)
+        else:
+            self.goToPosition(x,y)
+
 
 # ------------------------- END OF HeadsUpTello CLASS ---------------------------
