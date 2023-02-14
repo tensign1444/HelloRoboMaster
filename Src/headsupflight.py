@@ -181,9 +181,10 @@ class HeadsUpTello():
         :return:
         """
         #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
-        self.logger.info(f"Moving right {amount} cm.")
-        self.move('right', amount)
-        self.currentY -= amount
+        if (self.tether_distance('right', self.currentX, self.currentY - amount)):
+            self.logger.info(f"Moving right {amount} cm.")
+            self.move('right', amount)
+            self.currentY -= amount
 
     def move_left(self, amount):
         """
@@ -192,9 +193,10 @@ class HeadsUpTello():
         :return:
         """
         #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
-        self.logger.info(f"Moving left {amount} cm.")
-        self.move('left', amount)
-        self.currentY += amount
+        if self.tether_distance('left', self.currentX, self.currentY + amount):
+            self.logger.info(f"Moving left {amount} cm.")
+            self.move('left', amount)
+            self.currentY += amount
 
     def move_forward(self, amount):
         """
@@ -203,11 +205,10 @@ class HeadsUpTello():
         :return:
         """
         #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
-        self.tether_distance('forward', self.currentX + amount, self.currentY)
-        self.logger.info(f"Moving forward {amount} cm.")
-        self.move('forward', amount)
-
-        self.currentX += amount
+        if self.tether_distance('forward', self.currentX + amount, self.currentY):
+            self.logger.info(f"Moving forward {amount} cm.")
+            self.move('forward', amount)
+            self.currentX += amount
 
 
     def move_back(self, amount):
@@ -217,9 +218,10 @@ class HeadsUpTello():
         :return:
         """
         #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
-        self.logger.info(f"Moving back {amount} cm.")
-        self.move('back', amount)
-        self.currentX -= amount
+        if(self.tether_distance('back', self.currentX - amount, self.currentY)):
+            self.logger.info(f"Moving back {amount} cm.")
+            self.move('back', amount)
+            self.currentX -= amount
 
     def goToPosition(self, x, y):
         """
@@ -311,13 +313,17 @@ class HeadsUpTello():
             self.goToPosition(x,y)
 
     def tether_distance(self, direction, newX, newY):
+        self.logger.info(f"Checking if {newX} and {newY} are within boundaries.")
         directions = {'forward', 'backward', 'left', 'right'}
         if not direction in directions:
+            self.logger.info(f"No direction given.")
             return False
         else:
-            if Utility.isInTether(self.homeX, self.homeY, tether, newX, newY):
+            if Utility.isInTether(self.homeX, self.homeY, self.tether, newX, newY):
+                self.logger.info(f"{newX} and {newY} are within boundaries.")
                 return True
             else:
+                self.logger.info(f"{newX} and {newY} are not within boundaries.")
                 return False
 
 
