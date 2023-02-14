@@ -1,4 +1,5 @@
 import math
+from itertools import product
 from math import radians, sin
 from Util import dji_matrix as djim
 from djitellopy import Tello
@@ -117,7 +118,20 @@ def get_unknown_sides(a1, a2, c):
     return (c / sin(a3)) * sin(a1), (c / sin(a3)) * sin(a2)
 
 def get_c(currentX, currentY, x, y):
+    """
+    Get's new coordinates *work in progress*
+    """
     current = [currentX, currentY]
     new = [x, y]
     distance = math.dist(current, new)
     return distance
+
+def isInTether(center_x, center_y, rad, x, y):
+    """
+    Checks if the points x and y are within a circle
+    with center_x and center_y with the given radius
+    """
+    if ((x - center_x) * (x - center_y) + (y - center_x) * (y - center_y) <= rad * rad):
+        return True
+    else:
+        return False

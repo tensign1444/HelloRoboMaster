@@ -12,7 +12,7 @@ class HeadsUpTello():
     Drone. Inherits from the djitellopy.Tello class.
     """
 
-    def __init__(self, drone_baseobject, minBat, mission_obj=None, debug_level=logging.INFO):
+    def __init__(self, drone_baseobject, minBat, tether,  mission_obj=None, debug_level=logging.INFO):
         """
         Constuctor that establishes a connection with the drone. Pass in a new
         djitellopy Tello object give your HeadsUpTello object its wings.
@@ -43,6 +43,7 @@ class HeadsUpTello():
         self.currentRotation = 0
         self.homeRotation = 0
         self.minBatteryLevel = minBat
+        self.tether = tether
 
         self.logger = Log.Log("Test", "tie", 120, 10, "lilTieLog", logging.INFO)
         try:
@@ -202,9 +203,12 @@ class HeadsUpTello():
         :return:
         """
         #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+        self.tether_distance('forward', self.currentX + amount, self.currentY)
         self.logger.info(f"Moving forward {amount} cm.")
         self.move('forward', amount)
+
         self.currentX += amount
+
 
     def move_back(self, amount):
         """
@@ -306,11 +310,15 @@ class HeadsUpTello():
         else:
             self.goToPosition(x,y)
 
-    def tether_distance(self, direction):
+    def tether_distance(self, direction, newX, newY):
         directions = {'forward', 'backward', 'left', 'right'}
         if not direction in directions:
             return False
         else:
+            if Utility.isInTether(self.homeX, self.homeY, tether, newX, newY):
+                return True
+            else:
+                return False
 
 
 
