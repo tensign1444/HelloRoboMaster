@@ -306,6 +306,12 @@ class HeadsUpTello():
         else:
             self.goToPosition(x,y)
 
+    def tether_distance(self, direction):
+        directions = {'forward', 'backward', 'left', 'right'}
+        if not direction in directions:
+            return False
+        else:
+
 
 
 
