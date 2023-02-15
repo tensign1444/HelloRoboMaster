@@ -336,5 +336,8 @@ class HeadsUpTello():
 
 
 
+    def idle(self):
+        self.drone.set_speed(30)
+
 
 # ------------------------- END OF HeadsUpTello CLASS ---------------------------

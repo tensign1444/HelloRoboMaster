@@ -8,6 +8,7 @@ import cv2, time
 from djitellopy import Tello
 from Src.headsupflight import HeadsUpTello
 from Util import Utility
+from Camera import Photo
 
 
 # -------------------------------------------------------------------------------
@@ -46,8 +47,7 @@ class Flight():
         # Connect to the DJI RoboMaster drone using a HeadsUpTello object
         # Try passing logging.INFO and see how your output changesy
         self.my_robomaster = Tello()
-        self.drone = HeadsUpTello(self.my_robomaster, 20, mission_obj, None, logging.INFO)
-
+        self.drone = Photo.Photo(self.my_robomaster)
         self.inAir = False
 
     def read_json(self):
@@ -60,7 +60,7 @@ class Flight():
             data = json.load(json_file)
         return data
 
-    def mission_01(self):
+    def mission(self):
         """
         Requirements for Mission 01:
           >> Display team logo for 5 seconds
@@ -68,15 +68,14 @@ class Flight():
         There are a few extra features I've included for fun.
         """
 
+
         print(f"Battery: {Utility.get_battery(self.my_robomaster)}%")
         print(f"Temp °F: {Utility.get_temperature(self.my_robomaster)}")
-        self.drone.takeoff()
 
-        self.drone.fly_to_coordinates(60,-30,False)
-        time.sleep(1)
-        self.drone.fly_to_coordinates(0, 0, True)
-        self.drone.land()
-        self.drone.disconnect()
+        self.drone.take_photo()
+
+        self.drone.close()
+
         return
 
     def controller(self):
@@ -149,7 +148,7 @@ class Flight():
 if __name__ == '__main__':
     try:
         flight = Flight()
-        flight.mission_01()
+        flight.mission()
         print(f"Mission completed")
     except Exception as excp:
         print(excp)
