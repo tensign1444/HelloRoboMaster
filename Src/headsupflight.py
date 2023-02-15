@@ -12,7 +12,7 @@ class HeadsUpTello():
     Drone. Inherits from the djitellopy.Tello class.
     """
 
-    def __init__(self, drone_baseobject, minBat, tether,  mission_obj=None, debug_level=logging.INFO):
+    def __init__(self, drone_baseobject, minBat,  mission_obj=None, tether = None, debug_level=logging.INFO):
         """
         Constuctor that establishes a connection with the drone. Pass in a new
         djitellopy Tello object give your HeadsUpTello object its wings.
@@ -93,6 +93,9 @@ class HeadsUpTello():
     def move(self, direction, cm):
         """Moves the drone"""
         # self.logger.info(f"Moving drone {direction} {cm} cm")
+        while(cm > 500):
+            self.drone.send_control_command(f"{direction} {cm / 2}")
+            cm = cm / 2
         self.drone.send_control_command(f"{direction} {cm}")
 
     def fly_up(self, moveAmount=0):
@@ -236,15 +239,17 @@ class HeadsUpTello():
         self.logger.info(f"Going to position {x},{y} : X, Y, Z")
         newX = x - self.currentX
         newY = y - self.currentY
+        if newY < 0:
+            self.move_right(abs(newY))
+        elif newY > 0:
+            self.move_left(newY)
+
         if newX < 0:
             self.move_back(abs(newX))
         elif newX > 0:
             self.move_forward(newX)
 
-        if newY < 0:
-            self.move_right(abs(newY))
-        elif newY > 0:
-            self.move_left(newY)
+
 
     def go_to_point_rotation(self, x, y):
         """
@@ -319,11 +324,14 @@ class HeadsUpTello():
             self.logger.info(f"No direction given.")
             return False
         else:
-            if Utility.isInTether(self.homeX, self.homeY, self.tether, newX, newY):
-                self.logger.info(f"{newX} and {newY} are within boundaries.")
+            if(self.tether == None):
+                self.logger.info(f"No Tether Distance")
+                return True
+            elif Utility.isInTether(self.homeX, self.homeY, self.tether, newX, newY):
+                self.logger.info(f"{newX} and {newY} are within radius of {self.tether}.")
                 return True
             else:
-                self.logger.info(f"{newX} and {newY} are not within boundaries.")
+                self.logger.info(f"{newX} and {newY} are not within a radius of {self.tether}.")
                 return False
 
 

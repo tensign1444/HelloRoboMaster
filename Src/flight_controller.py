@@ -46,7 +46,7 @@ class Flight():
         # Connect to the DJI RoboMaster drone using a HeadsUpTello object
         # Try passing logging.INFO and see how your output changesy
         self.my_robomaster = Tello()
-        self.drone = HeadsUpTello(self.my_robomaster, mission_obj, 20, logging.INFO)
+        self.drone = HeadsUpTello(self.my_robomaster, 20, mission_obj, None, logging.INFO)
 
         self.inAir = False
 
@@ -72,10 +72,9 @@ class Flight():
         print(f"Temp °F: {Utility.get_temperature(self.my_robomaster)}")
         self.drone.takeoff()
 
-        #self.drone.move_up(50)
-        self.drone.fly_to_coordinates(400,300,True)
-        #self.drone.goHome(False)
+        self.drone.fly_to_coordinates(60,-30,False)
         time.sleep(1)
+        self.drone.fly_to_coordinates(0, 0, True)
         self.drone.land()
         self.drone.disconnect()
         return
