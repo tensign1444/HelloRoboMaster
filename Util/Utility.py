@@ -126,6 +126,23 @@ def get_c(currentX, currentY, x, y):
     distance = math.dist(current, new)
     return distance
 
+def get_coords_directflight(angleA, angleC, sideC):
+    """
+    Gets new x,y coords when direct flight is used.
+    Uses the law of sines to find two unknown sides of a
+    triangle.
+    """
+    angleB = 180 - angleC - angleA
+    ycoord =  law_of_sines(angleA, angleC, sideC)
+    xcoord = law_of_sines(angleB, angleC, sideC)
+    return xcoord, ycoord
+
+def law_of_sines(angleA,angleC, sideC):
+    """
+    Uses the law of sines to find an unknown side given
+    two angles and a side of a triangle.
+    """
+    return int(math.sin(angleA) * sideC/math.sin(angleC))
 def isInTether(center_x, center_y, rad, x, y):
     """
     Checks if the points x and y are within a circle
