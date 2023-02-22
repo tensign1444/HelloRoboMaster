@@ -1,5 +1,8 @@
 import math
 import logging
+import threading
+
+import Camera.Photo
 from Util import Log
 from Util import Utility
 
@@ -12,7 +15,7 @@ class HeadsUpTello():
     Drone. Inherits from the djitellopy.Tello class.
     """
 
-    def __init__(self, drone_baseobject, minBat,  mission_obj=None, tether = None, debug_level=logging.INFO):
+    def __init__(self, drone_baseobject, minBat, mission_obj=None, tether=None, debug_level=logging.INFO):
         """
         Constuctor that establishes a connection with the drone. Pass in a new
         djitellopy Tello object give your HeadsUpTello object its wings.
@@ -50,6 +53,7 @@ class HeadsUpTello():
             self.drone.connect()
             self.logger.info("****Connected to ")
             self.connected = True
+            self.idle()
             self.barHeight = Utility.get_barometer(self.drone)
         except Exception as excp:
             self.logger.error(f"ERROR: could not connect to Trello Drone: {excp}")
@@ -93,7 +97,7 @@ class HeadsUpTello():
     def move(self, direction, cm):
         """Moves the drone"""
         # self.logger.info(f"Moving drone {direction} {cm} cm")
-        while(cm > 500):
+        while (cm > 500):
             self.drone.send_control_command(f"{direction} {cm / 2}")
             cm = cm / 2
         self.drone.send_control_command(f"{direction} {cm}")
@@ -150,7 +154,7 @@ class HeadsUpTello():
         """
         Custom move up function to tell if the move up amount is less than possible.
         """
-        #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+        # if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
         if amount < 20:
             self.logger.warning("Going to move down 30 then up 30 since move amount was {amount}")
             self.logger.info(f"Moving down {amount} cm.")
@@ -166,7 +170,7 @@ class HeadsUpTello():
         Custom move down function to tell if the move amount is less than possible
         test hello
         """
-        #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+        # if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
         if amount < 20:
             self.logger.warning(f"Going to move up 30 then down 30 since move amount was {amount}")
             self.logger.info(f"Moving up {amount} cm.")
@@ -183,7 +187,7 @@ class HeadsUpTello():
         :param amount: the amount in cm to move the drone to the right.
         :return:
         """
-        #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+        # if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
         if (self.tether_distance('right', self.currentX, self.currentY - amount)):
             self.logger.info(f"Moving right {amount} cm.")
             self.move('right', amount)
@@ -195,7 +199,7 @@ class HeadsUpTello():
         :param amount: the amount in cm to move drone to the right.
         :return:
         """
-        #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+        # if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
         if self.tether_distance('left', self.currentX, self.currentY + amount):
             self.logger.info(f"Moving left {amount} cm.")
             self.move('left', amount)
@@ -207,12 +211,11 @@ class HeadsUpTello():
         :param amount: the amount in cm to move drone forward
         :return:
         """
-        #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+        # if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
         if self.tether_distance('forward', self.currentX + amount, self.currentY):
             self.logger.info(f"Moving forward {amount} cm.")
             self.move('forward', amount)
             self.currentX += amount
-
 
     def move_back(self, amount):
         """
@@ -220,8 +223,8 @@ class HeadsUpTello():
         :param amount: the amount in cm to move the drone back
         :return:
         """
-        #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
-        if(self.tether_distance('back', self.currentX - amount, self.currentY)):
+        # if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+        if (self.tether_distance('back', self.currentX - amount, self.currentY)):
             self.logger.info(f"Moving back {amount} cm.")
             self.move('back', amount)
             self.currentX -= amount
@@ -249,14 +252,12 @@ class HeadsUpTello():
         elif newX > 0:
             self.move_forward(newX)
 
-
-
     def go_to_point_rotation(self, x, y):
         """
         Goes to a point with rotation
         """
         self.rotate_to_bearing(self.getRotateAmount(x, y))
-        self.move_forward(Utility.get_c(self.currentX,self.currentY,x,y))
+        self.move_forward(Utility.get_c(self.currentX, self.currentY, x, y))
         self.currentX = x
         self.currentY = y
 
@@ -264,16 +265,16 @@ class HeadsUpTello():
         """
         Rotates the drone counter-clock wise
         """
-        #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
-            #self.drone.rotate_counter_clockwise(degrees)
+        # if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+        # self.drone.rotate_counter_clockwise(degrees)
         self.drone.rotate_counter_clockwise(degrees)
 
     def rotate_cw(self, degrees):
         """
         Rotates the drone clockwise.
         """
-        #if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
-            #self.drone.rotate_clockwise(degrees)
+        # if Utility.check_battery(self.drone, self.minBatteryLevel, self.logger):
+        # self.drone.rotate_clockwise(degrees)
         self.drone.rotate_clockwise(degrees)
 
     def goHome(self, directFlight):
@@ -290,7 +291,7 @@ class HeadsUpTello():
         mydegrees = abs(int(math.degrees(myradians)))
         return mydegrees
 
-    def rotate_to_bearing(self,degrees):
+    def rotate_to_bearing(self, degrees):
         """
         Rotates the drone to a specific bearing by finding the shortest rotation path given the amount of degrees.
         """
@@ -307,24 +308,26 @@ class HeadsUpTello():
         """
         self.homeX, self.homeY, self.homeZ = self.currentX, self.currentY, Utility.get_Height(self.drone, self.useBar)
 
-
-    def fly_to_coordinates(self,x, y, direct_flight=False):
+    def fly_to_coordinates(self, x, y, direct_flight=False):
         """
         Fly the drone to a specific coordinate and decide if you want direct flight.
         """
         if direct_flight:
-            self.go_to_point_rotation(x,y)
+            self.go_to_point_rotation(x, y)
         else:
-            self.goToPosition(x,y)
+            self.goToPosition(x, y)
 
     def tether_distance(self, direction, newX, newY):
+        """
+        Checks if the drone is within the tether distance.
+        """
         self.logger.info(f"Checking if {newX} and {newY} are within boundaries.")
         directions = {'forward', 'backward', 'left', 'right'}
         if not direction in directions:
             self.logger.info(f"No direction given.")
             return False
         else:
-            if(self.tether == None):
+            if (self.tether == None):
                 self.logger.info(f"No Tether Distance")
                 return True
             elif Utility.isInTether(self.homeX, self.homeY, self.tether, newX, newY):
@@ -334,10 +337,25 @@ class HeadsUpTello():
                 self.logger.info(f"{newX} and {newY} are not within a radius of {self.tether}.")
                 return False
 
-
-
     def idle(self):
-        self.drone.set_speed(30)
+        """
+        Turns on the motors to cool the battery.
+        """
+        self.drone.turn_motor_on()
 
+    def take_photo(self):
+        """
+        Takes a photo using the Tello camera
+        """
+        thread = threading.Thread(target=Camera.Photo.take_photo, args=(self.drone))
+        thread.start()
+        thread.join()
 
+    def take_video(self):
+        """
+        Takes a video using the Tello camera
+        """
+        thread = threading.Thread(target=Camera.Photo.record, args=(self.drone, 30))
+        thread.start()
+        thread.join()
 # ------------------------- END OF HeadsUpTello CLASS ---------------------------

@@ -23,9 +23,9 @@ def cv2TextBoxWithBackground(img, text,
     return img
 
 
-def take_photo(self):
-    self.drone.streamon()
-    camera = self.drone.get_frame_read()
+def take_photo(drone):
+    drone.streamon()
+    camera = drone.get_frame_read()
 
     print('Taking picture in 3s... ', end='', flush=True)
     time.sleep(1)
@@ -39,7 +39,7 @@ def take_photo(self):
 
     image = camera.frame
     text = datetime.now().strftime("%Y-%m-%d %H:%m.%S")
-    self.cv2TextBoxWithBackground(image, text)
+    cv2TextBoxWithBackground(image, text)
     cv2.imwrite("my_drone_photo.png", image)
 
     cv2.imshow("My Drone Photograph", image)
@@ -62,3 +62,48 @@ def take_photo(self):
 
 
     # Turn off the video stream and the drone
+
+
+def record(drone, fps):
+    # Turn on video stream and get the BackgroundFrameRead object
+
+    drone.streamon()
+    camera = drone.get_frame_read()
+
+    # To make the movie play at 'real life' speed, choose a frame rate and then
+    # calculate the time delay between each frame. The video capture loop will have
+    # to regulate itsejlf to write frames at the this frequency.
+
+    movie_name = 'drone_capture.avi'
+    movie_codec = cv2.VideoWriter_fourcc(*'mp4v')
+    movie_fps = fps
+    frame_wait = 1 / movie_fps
+    movie_size = (360, 240)
+
+    print(f"Recording movie at {movie_fps} FPS or 1/{frame_wait:.3f}s")
+
+    # Show video by looping and showing frame by frame (animation style)
+    # Notice that we can't do anything else except take video... if we want the
+    #drone to do something else while taking video, we'll need to use threads
+
+    frame_counter = 0
+    time_prev = time.time()
+    cv2.namedWindow("Drone Video Feed")
+    movie = cv2.VideoWriter(movie_name, movie_codec, movie_fps, movie_size, True)
+
+    while frame_counter < 10 * movie_fps:
+        time_curr = time.time()
+        time_elapsed = time_curr - time_prev
+        if time_elapsed > frame_wait:
+            image = camera.frame
+            image = cv2.resize(image, movie_size)
+            cv2.imshow("Drone Video Feed", image)
+            cv2.waitKey(1)
+            movie.write(image)
+            time_prev = time_curr
+            frame_counter += 1
+            if frame_counter % movie_fps == 0:
+                print(f"FRAME: {frame_counter} @ {time_elapsed}")
+        cv2.waitKey(5)
+
+    print("Finished!")
