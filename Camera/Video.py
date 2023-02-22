@@ -29,7 +29,7 @@ def record(drone, fps):
 
     # To make the movie play at 'real life' speed, choose a frame rate and then
     # calculate the time delay between each frame. The video capture loop will have
-    # to regulate itself to write frames at the this frequency.
+    # to regulate itsejlf to write frames at the this frequency.
 
     movie_name = 'drone_capture.avi'
     movie_codec = cv2.VideoWriter_fourcc(*'mp4v')
